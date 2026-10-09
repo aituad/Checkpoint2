@@ -2,9 +2,13 @@
 
 ## Q1 fixed-step GD
 
-For Q1, the condition number is c = 129, so
+For Q1, the condition number is c = 129. The Hessian is
 
-λmax = 129.
+H = diag(2, 258),
+
+so
+
+λmax = 258.
 
 The stability boundary is
 
@@ -12,7 +16,7 @@ The stability boundary is
 
 Therefore,
 
-2 / λmax = 2 / 129 ≈ 0.0155039.
+2 / λmax = 2 / 258 = 1/129 ≈ 0.00775194.
 
 We tested
 
@@ -61,14 +65,20 @@ For Q1, the final accepted step is approximately 0.003906, which is
 very close to 1/λmax ≈ 0.003876.
 
 For the project block, GD-BT accepted α = 1.0 without halving on
-average. The project objective is much better scaled near the optimum,
-where 1/λmax(H) ≈ 13.514.
+average. Here 1/λmax(H) ≈ 13.514, so the initial α0 = 1 is smaller
+than the local inverse-curvature scale. Because backtracking only
+decreases α, it cannot increase the step when α0 is already too small.
+Thus α0 = 1 is harmless here, but it prevents GD-BT from exploiting
+the larger local step suggested by 1/λmax(H).
 
 ## Conclusion
 
 The Q1 sweep confirms that the theoretical stability threshold predicts
 the observed transition between convergence and divergence. Backtracking
-automatically reduces the step size when the initial α = 1 is too large
-and settles near a scale related to the local inverse curvature.
+automatically reduces the step size when the initial α = 1 is too large,
+as observed on R1 and Q1, while on the project block α = 1 is accepted
+without halving because it is already below the local inverse-curvature
+scale. Since GD-BT only decreases α, an initial step that is too small
+cannot be increased automatically.
 
 Name: Adil
