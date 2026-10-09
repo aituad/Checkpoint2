@@ -1,6 +1,7 @@
 # Checkpoint 2 — Team T16
 
 ## Individual Role: M1 — Gradient Descent (GD)
+Author: Adil Mutali
 
 ### Responsibilities
 
