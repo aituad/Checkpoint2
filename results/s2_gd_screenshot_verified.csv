@@ -1,5 +1,0 @@
-c,alpha,iterations,gradient_norm,threshold,source
-10,0.09090909090909091,69,1.3807943988470461e-05,1.4239382009062048e-05,Transcribed fixed-step GD from supplied GitHub screenshots
-100,0.009900990099009901,691,0.00013933271492545373,0.0001400241407757962,Transcribed fixed-step GD from supplied GitHub screenshots
-1000,0.000999000999000999,6908,0.0013993109176004158,0.0014000024142836326,Transcribed fixed-step GD from supplied GitHub screenshots
-129,0.007692307692307693,892,0.00017806780898534116,0.00018061871442350593,Transcribed fixed-step GD from supplied GitHub screenshots
