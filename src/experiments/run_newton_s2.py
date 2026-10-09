@@ -1,5 +1,5 @@
-"""S2 experiments using the team's GD, Adam and Newton implementations."""
-
+"""S2 experiments using the team's GD, Momentum, Adam and Newton implementations."""
+from src.optim.momentum import optimize as optimize_momentum
 import csv
 from pathlib import Path
 
@@ -141,65 +141,86 @@ def project():
     )
 
 
-def run_conditioning():
-    rows = []
-    grid = []
+def tune_momentum(f, grad, x0, c):
+    candidates, runs = [], []
 
+    def evaluate(alpha):
+        for beta in [0.5, 0.8, 0.9, 0.95, 0.99]:
+            with np.errstate(over="ignore", invalid="ignore"):
+                x, _, k = optimize_momentum(
+                    f, grad, x0, alpha=float(alpha), beta=beta,
+                    tol_rel=TOL, max_iter=MAX_ITER,
+                )
+                success = converged(grad, x, x0, True)
+            runs.append({
+                "c": c, "method": "Momentum", "alpha": float(alpha),
+                "beta": beta, "iterations": int(k), "converged": success,
+            })
+            if success:
+                candidates.append((int(k), float(alpha), beta))
+
+    for alpha in np.logspace(-5, 0, 11):
+        evaluate(alpha)
+    edge = 1.0
+    while candidates and min(candidates)[1] == edge and edge < 1e4:
+        edge = min(edge * np.sqrt(10.0), 1e4)
+        evaluate(edge)
+    return min(candidates) if candidates else None, runs
+
+
+def run_conditioning():
+    rows, adam_grid, momentum_grid = [], [], []
     for c in [10, 100, 1000, 129]:
         f, grad, hess, x0 = quadratic(c)
         alpha = 1.0 / (1.0 + c)
-
         x, _, k = gradient_descent(
             f, grad, x0, alpha=alpha,
             tol=TOL, relative=True, max_iter=MAX_ITER,
         )
         rows.append({
-            "c": c, "method": "GD alpha*",
-            "iterations": int(k), "alpha": alpha,
-            "status": (
-                "converged"
-                if converged(grad, x, x0, True)
-                else "failed"
-            ),
+            "c": c, "method": "GD alpha*", "iterations": int(k),
+            "alpha": alpha, "beta": "",
+            "status": "converged" if converged(grad, x, x0, True) else "failed",
         })
-
         best, trials = tune_adam(f, grad, x0, c)
-        grid.extend(trials)
+        adam_grid.extend(trials)
         rows.append({
-            "c": c, "method": "Adam",
-            "iterations": best[0] if best else "",
-            "alpha": best[1] if best else "",
+            "c": c, "method": "Adam", "iterations": best[0] if best else "",
+            "alpha": best[1] if best else "", "beta": "",
             "status": "converged" if best else "failed",
         })
-
+        print(f"Conditioning c={c}: tuning Momentum...", flush=True)
+        best, trials = tune_momentum(f, grad, x0, c)
+        momentum_grid.extend(trials)
         rows.append({
-            "c": c, "method": "Momentum",
-            "iterations": "", "alpha": "",
-            "status": "pending team verification",
+            "c": c, "method": "Momentum", "iterations": best[0] if best else "",
+            "alpha": best[1] if best else "", "beta": best[2] if best else "",
+            "status": "converged" if best else "failed",
         })
-
+        if best:
+            print(f"Momentum c={c}: k={best[0]}, alpha={best[1]:.10g}, beta={best[2]}", flush=True)
+        else:
+            print(f"Momentum c={c}: no converged run in the tested grid", flush=True)
         for name, solver in [
-            ("Newton pure", pure_newton),
-            ("Newton damped", damped_newton),
+            ("Newton pure", pure_newton), ("Newton damped", damped_newton),
         ]:
             x, _, k = solver(
-                f, grad, hess, x0,
-                tol=TOL, relative=True, max_iter=100,
+                f, grad, hess, x0, tol=TOL, relative=True, max_iter=100,
             )
             rows.append({
-                "c": c, "method": name,
-                "iterations": int(k), "alpha": "",
-                "status": (
-                    "converged"
-                    if converged(grad, x, x0, True)
-                    else "failed"
-                ),
+                "c": c, "method": name, "iterations": int(k),
+                "alpha": "", "beta": "",
+                "status": "converged" if converged(grad, x, x0, True) else "failed",
             })
-
         print(f"Conditioning c={c}: completed", flush=True)
-
     save_csv("s2_conditioning_team.csv", rows)
-    save_csv("s2_adam_grid_team.csv", grid)
+    save_csv("s2_adam_grid_team.csv", adam_grid)
+    save_csv("s2_momentum_grid_team.csv", momentum_grid)
+    q1_m = next(r for r in rows if r["c"] == 129 and r["method"] == "Momentum")
+    q1_n = next(r for r in rows if r["c"] == 129 and r["method"] == "Newton pure")
+    if q1_m["status"] == q1_n["status"] == "converged":
+        cutoff = np.sqrt(10 * q1_m["iterations"] / q1_n["iterations"])
+        print(f"Q1 cost model: Momentum cheaper for n > {cutoff:.6f}; integer n >= {int(np.floor(cutoff)) + 1}.", flush=True)
 
 
 def run_safeguards():
@@ -281,7 +302,7 @@ def run_safeguards():
 def main():
     run_conditioning()
     run_safeguards()
-    print("S2 results saved in results/. Momentum remains pending.")
+    print("S2 results saved in results/. Check status in s2_conditioning_team.csv.")
 
 
 if __name__ == "__main__":
