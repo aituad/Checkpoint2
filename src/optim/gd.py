@@ -1,11 +1,7 @@
 import numpy as np
 
 
-def _stop_threshold(grad0_norm, tol, relative):
-    return tol * grad0_norm if relative else tol
-
-
-def gradient_descent(f, grad, x0, alpha, tol=1e-6, relative=False, max_iter=100_000):
+def gradient_descent(f, grad, x0, alpha, max_iter=100_000, tol_abs=None, tol_rel=None):
     """Fixed-step gradient descent.
 
     Returns (x, hist, k), where hist contains x^(0),...,x^(k) and k is the
@@ -14,16 +10,27 @@ def gradient_descent(f, grad, x0, alpha, tol=1e-6, relative=False, max_iter=100_
     x = np.asarray(x0, dtype=float).copy()
     hist = [x.copy()]
     g0_norm = float(np.linalg.norm(grad(x)))
-    threshold = _stop_threshold(g0_norm, tol, relative)
 
     for k in range(max_iter + 1):
         g = np.asarray(grad(x), dtype=float)
+        g_norm = np.linalg.norm(g)
+        
+        # Проверка на NaN, Inf или слишком большие значения (Blow-up guard)
         if not np.all(np.isfinite(x)) or not np.all(np.isfinite(g)) or np.linalg.norm(x) > 1e12:
             return x, np.asarray(hist), k
-        if np.linalg.norm(g) < threshold:
+            
+        # Проверка абсолютной остановки (как для Розенброка)
+        if tol_abs is not None and g_norm < tol_abs:
             return x, np.asarray(hist), k
+            
+        # Проверка относительной остановки (как для квадратичных функций)
+        if tol_rel is not None and g_norm < tol_rel * g0_norm:
+            return x, np.asarray(hist), k
+            
         if k == max_iter:
             return x, np.asarray(hist), k
+            
+        # Шаг алгоритма
         x = x - alpha * g
         hist.append(x.copy())
 
@@ -31,7 +38,7 @@ def gradient_descent(f, grad, x0, alpha, tol=1e-6, relative=False, max_iter=100_
 
 
 def gradient_descent_backtracking(
-    f, grad, x0, tol=1e-6, relative=False, max_iter=100_000,
+    f, grad, x0, max_iter=100_000, tol_abs=None, tol_rel=None,
     alpha0=1.0, armijo_c=1e-4, return_steps=False
 ):
     """Gradient descent with Armijo backtracking.
@@ -43,16 +50,23 @@ def gradient_descent_backtracking(
     x = np.asarray(x0, dtype=float).copy()
     hist = [x.copy()]
     g0_norm = float(np.linalg.norm(grad(x)))
-    threshold = _stop_threshold(g0_norm, tol, relative)
     accepted = []
     halvings = []
 
     for k in range(max_iter + 1):
         g = np.asarray(grad(x), dtype=float)
+        g_norm = np.linalg.norm(g)
+        
+        # Проверка на NaN, Inf или взрыв
         if not np.all(np.isfinite(x)) or not np.all(np.isfinite(g)) or np.linalg.norm(x) > 1e12:
             break
-        if np.linalg.norm(g) < threshold:
+            
+        # Проверки остановки
+        if tol_abs is not None and g_norm < tol_abs:
             break
+        if tol_rel is not None and g_norm < tol_rel * g0_norm:
+            break
+            
         if k == max_iter:
             break
 
@@ -61,6 +75,8 @@ def gradient_descent_backtracking(
         h = 0
         fx = float(f(x))
         gd = float(np.dot(g, d))
+        
+        # Условие Армихо
         while float(f(x + alpha * d)) > fx + armijo_c * alpha * gd:
             alpha *= 0.5
             h += 1

@@ -1,0 +1,21 @@
+Problem,Solver,Iterations,Alpha
+R1,Adam,1034,0.31622776601683794
+R1,GD,32076,0.001
+R1,Newton (pure),6,-
+R1,Newton (damped),21,-
+R1,Momentum,3936,0.0031622776601683794
+R2,Adam,1219,1.0
+R2,GD,32794,0.001
+R2,Newton (pure),7,-
+R2,Newton (damped),22,-
+R2,Momentum,13094,0.001
+Q1,Adam,186,0.1
+Q1,GD,1510,0.0031622776601683794
+Q1,Newton (pure),1,-
+Q1,Newton (damped),1,-
+Q1,Momentum,172,0.01
+Q2,Adam,213,0.31622776601683794
+Q2,GD,1510,0.0031622776601683794
+Q2,Newton (pure),1,-
+Q2,Newton (damped),1,-
+Q2,Momentum,172,0.01
