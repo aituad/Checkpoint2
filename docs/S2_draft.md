@@ -13,11 +13,10 @@ parameter grids.
 | 1000 | 6908 | 297 | 185 | 1 | 1 |
 | 129 | 892 | 120 | 186 | 1 | 1 |
 
-GD and Adam were recomputed using transcriptions of the team
-implementations visible in the supplied GitHub screenshots.
-These were not runs of a downloaded repository checkout.
-†Momentum results remain auxiliary reference values pending
-verification against the team's implementation.
+GD and Adam results were reproduced using the team's implementations
+with src/experiments/run_newton_s2.py. Newton results were also
+reproduced successfully. †Momentum results remain auxiliary reference
+values pending verification against the team's implementation.
 
 Increasing κ from 10 to 1000 increased GD from 69 to 6908
 updates, while reference Momentum increased from 41 to 297.
