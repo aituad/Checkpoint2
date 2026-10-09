@@ -1,52 +1,52 @@
 # Checkpoint 2 — Team T16
 
 ## Individual Role: M1 — Gradient Descent (GD)
-Author: Adil Mutali
 
-### Responsibilities
+**Author:** Adil Mutali.
 
-- Implement Gradient Descent with fixed step size.
-- Implement Gradient Descent with Armijo backtracking.
-- Implement the Rosenbrock objective and analytical gradient.
-- Implement gradient checking using central finite differences.
-- Perform the required convergence and gradient-check experiments.
-- Prepare the M1 hand trace and analysis.
-
-### Implementation
-
-The Gradient Descent implementation is located in:
+### Code
 
 - `src/optim/gd.py`
-- `src/problems/rosenbrock.py`
-- `src/problems/check_grad.py`
+  - `gradient_descent(f, grad, x0, alpha, max_iter=100_000, tol_abs=None, tol_rel=None)` — fixed step.
+  - `gradient_descent_backtracking(f, grad, x0, max_iter=100_000, tol_abs=None, tol_rel=None, alpha0=1.0, armijo_c=1e-4, return_steps=False)` —
+    d = −∇f, α starts at 1 and is halved while `f(x+αd) > f(x) + 1e-4·α·⟨∇f,d⟩`.
+    With `return_steps=True` it also returns the accepted steps and the numbers of halvings.
+- `src/problems/rosenbrock.py` — `f_rosenbrock`, `grad_rosenbrock`, `hess_rosenbrock` (aliases `f`, `grad`, `hess`) and the starts R1 = (−1.2, 1), R2 = (−1.51, 2.17).
+- `src/problems/check_grad.py` — central-difference gradient check, returns `(max_error, analytic, numeric)`.
+- `tests/test_gd.py`, `tests/test_grad.py`; `src/experiments/run_s1.py`; `docs/S1_GD.md`; `hand/H1_GD.pdf`.
 
-Tests are located in:
+### Verification (reproduced by `python -m pytest tests/test_gd.py tests/test_grad.py`)
 
-- `tests/test_gd.py`
-- `tests/test_grad.py`
+| Check | Reference | Result |
+|---|---|---|
+| R1, GD α = 1e-3, absolute rule | 32 076 | 32 076 |
+| R1, GD-BT | 13 756 | 13 756 |
+| R1 start: f, ‖∇f‖ | 24.2, 232.86 | 24.2, 232.868 |
+| R2 start: f, ‖∇f‖ | 7.5123, 74.8335 | 7.5123, 74.8335 |
+| Q1 / Q2 start: f, ‖∇f‖ | 64.9, 180.619 | 64.9, 180.6187 (both) |
+| Q1 vs Q2, GD at α* = 1/130 | equal up to ±1 | 892 / 892 |
+| Q1 vs Q2, GD-BT | equal up to ±1 | 39 / 39 |
+| `check_grad` on R1 (−1.2, 1) | below 1e-6 | 2.24e-08 |
+| `check_grad` on R2 start, Q1, Q2 | below 1e-6 | 3.4e-09, 5.1e-09, 5.6e-09 |
 
-The implementation uses NumPy and the Python standard library only.
+H1 (f = 2x² + 7y², x⁰ = (4, 1)) is reproduced to 1e-3 by `tests/test_gd.py`:
+two fixed steps with α = 0.05 give (3.2, 0.3) and (2.56, 0.09) with f = 21.11 and 13.1639;
+backtracking rejects α = 1, 0.5, 0.25 and accepts α = 0.125, giving x¹ = (2, −0.75), f = 11.9375.
 
-### Verification
+Additional GD numbers (Q1/Q2, c = 129, relative rule): GD at α* = 1/(1+c) needs 892 updates,
+the best grid value α = 10^−2.5 needs 1510, GD-BT needs 39 (R2: GD α = 1e-3 needs 32 794, GD-BT 17 291).
 
-For the Rosenbrock starting point `(-1.2, 1.0)`:
+### Analysis
 
-- Fixed-step GD converges in 32076 iterations.
-- GD with Armijo backtracking converges in 13756 iterations.
-- The stopping criterion is `||grad f(x)|| < 1e-6`.
+`docs/S1_GD.md` (S1, signed): the t·2/λ_max sweep on Q1 against ρ(α), backtracking
+statistics on R1, Q1 and the project block, and the role of the starting guess α₀ = 1.
 
-Gradient checking at `(-1.2, 1.0)` gives:
+### Declaration (M1)
 
-- Maximum gradient error: approximately `2.24e-08`
-- Required tolerance: below `1e-6`
+- **External code:** none in `src/optim/gd.py`. No `scipy.optimize`, `sklearn`, `autograd`, JAX or PyTorch is used.
+- **AI assistance:** an AI assistant (Claude, Anthropic) worked as my assistant on the M1 part. It explained the methods, helped debug, helped draft parts of `src/optim/gd.py`, `src/problems/rosenbrock.py`, `src/problems/check_grad.py` and the documentation, helped write the tests (`tests/test_gd.py`, `tests/test_grad.py`) and the S1 experiment script (`src/experiments/run_s1.py`), and checked my work against the assignment and the task file: it re-ran the reference counts and the gradient check and pointed out what did not match (broken test imports, a missing GD-BT column and the α* candidate in Table 1, mistakes in the S1 text). I reviewed and re-ran everything and I am responsible for understanding and defending the submitted work.
+- **Hand trace H1** is my own work on paper; AI was not used to produce it.
 
-Therefore, the analytical gradient passes the required gradient check.
-
-## Declaration
-
-AI assistance was used during development of the M1 implementation and documentation. The AI assistant was used for explanation, debugging guidance, numerical verification, and drafting parts of the implementation/documentation. The resulting code was reviewed and tested by the student, and the student is responsible for understanding and defending the submitted work.
-
-No external optimization library was used for the Gradient Descent implementation.
 
 
 
