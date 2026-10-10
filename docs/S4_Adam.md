@@ -1,0 +1,12 @@
+# S4 — Adam and the Rotated Axes
+
+**Adam and Rotation Sensitivity**
+While GD, GD-BT, Newton, and Momentum are perfectly rotation-invariant (e.g., Momentum takes exactly 120 iterations on both Q1 and Q2), Adam's performance changes under rotation. Using individually tuned settings, Adam takes 186 iterations ($\alpha=0.1$) on Q1 and 213 iterations ($\alpha=0.316$) on Q2. Even if we evaluate both Q1 and Q2 using identical Adam parameters (e.g., $\alpha=0.1$), the iteration counts will still differ. This occurs because Adam relies on elementwise squared-gradient accumulation and division. These operations depend strictly on the chosen coordinate axes, meaning the Adam update rule does not commute with an arbitrary rotation. When the axes are rotated in Q2, the diagonal scaling can no longer perfectly uncouple the principal directions of the objective function.
+
+**Sensitivity to the Learning Rate ($\alpha$)**
+We swept $\alpha$ across R1, Q1, and the project block to report iterations against various step sizes, including $\alpha = 0.001$. When evaluating Adam, we must distinguish simply reaching the tolerance from actual computational efficiency. For instance, on R1, the verified baseline setting of $\alpha = 0.1$ takes 1,706 updates. However, this should not be confused with our tuned best setting of $\alpha = 0.316$, which completes the problem in just 1,034 updates. On the project block, our tuned $\alpha = 0.316$ takes 247 iterations. While a small step size like $\alpha = 0.001$ allows Adam to eventually reach the tolerance on R1, Q1, and the project, it requires significantly more iterations, proving that reaching convergence does not imply efficient performance.
+
+**Testing the Claim: "Adam is robust to a poor choice of $\alpha$"**
+Lecture 5's claim about robustness means that Adam will reliably reach the required tolerance across a very wide range of $\alpha$ values without diverging (unlike vanilla Gradient Descent, which easily blows up). However, robustness does not mean the updates are strictly clamped. It is a misconception to claim that every Adam coordinate update is mathematically bounded by $\alpha$: because of the bias correction terms ($\hat{m}$ and $\hat{s}$), the ratio of the corrected first moment to the square root of the corrected second moment need not be at most one. The robustness simply guarantees safe, continued progress downhill over a broad grid of hyperparameters, even if the chosen $\alpha$ is far from computationally optimal.
+
+*Miras Asem*
