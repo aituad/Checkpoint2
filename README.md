@@ -34,44 +34,43 @@ Dependencies in `requirements.txt`:
 
 The solver implementations use NumPy and the Python standard library. Matplotlib generates the figures.
 
+## Environment
+
+The project uses Python 3, NumPy for numerical computations, and Matplotlib for plotting. Solver implementations use NumPy and the Python standard library.
+
+Dependencies are installed directly using pip.
+
 ## Installation and Execution
 
-Open a terminal in the repository root.
+Run the following commands from the repository root.
 
-Create and activate a virtual environment:
+Create and activate a virtual environment on macOS or Linux:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install dependencies:
+Install the required libraries:
 
 ```bash
-python3 -m pip install -r requirements.txt
+python3 -m pip install numpy matplotlib
 ```
 
-Run the tests:
+Run the experiment script located in `src/experiments/run_all.py`:
 
 ```bash
-python3 -m tests.run_tests
+python3 -m src.experiments.run_all
 ```
 
-Run all experiments:
+Generated tables, numerical results and figures are saved in `results/`. Open the saved image files to view the graphs.
 
-```bash
-python3 -m experiments.run_all
-```
-
-The common runner regenerates tables, tuning results, derivative checks, analysis experiments and figures in `results/`. Figures are saved as files rather than displayed in separate windows.
-
-To record the exact environment used for submission:
+To inspect the environment used for the experiments:
 
 ```bash
 python3 --version
-python3 -m pip freeze
+python3 -m pip show numpy matplotlib
 ```
-
 ## Repository Structure
 
 ```text
