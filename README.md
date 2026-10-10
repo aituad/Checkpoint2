@@ -1,189 +1,235 @@
 # Checkpoint 2 — Team T16
 
-## Individual Role: M1 — Gradient Descent (GD)
+## Unconstrained Optimization and Cloud Load Balancing
 
-**Author:** Adil Mutali.
+- **Section:** 4
+- **Storyline:** B — Cloud
+- **Variant:** 3
+- **Seed:** 16
+- **Repository:** https://github.com/aituad/Checkpoint2
+- **Submission tag:** `checkpoint2`
 
-### Code
+This project compares six optimization configurations on Rosenbrock, two quadratic problems, and a continuous cloud load-balancing model based on our Checkpoint 1 data.
 
-- `src/optim/gd.py`
-  - `gradient_descent(f, grad, x0, alpha, max_iter=100_000, tol_abs=None, tol_rel=None)` — fixed step.
-  - `gradient_descent_backtracking(f, grad, x0, max_iter=100_000, tol_abs=None, tol_rel=None, alpha0=1.0, armijo_c=1e-4, return_steps=False)` —
-    d = −∇f, α starts at 1 and is halved while `f(x+αd) > f(x) + 1e-4·α·⟨∇f,d⟩`.
-    With `return_steps=True` it also returns the accepted steps and the numbers of halvings.
-- `src/problems/rosenbrock.py` — `f_rosenbrock`, `grad_rosenbrock`, `hess_rosenbrock` (aliases `f`, `grad`, `hess`) and the starts R1 = (−1.2, 1), R2 = (−1.51, 2.17).
-- `src/problems/check_grad.py` — central-difference gradient check, returns `(max_error, analytic, numeric)`.
-- `tests/test_gd.py`, `tests/test_grad.py`; `src/experiments/run_s1.py`; `docs/S1_GD.md`; `hand/H1_GD.pdf`.
+## Team Roles
 
-### Verification (reproduced by `python -m pytest tests/test_gd.py tests/test_grad.py`)
+| Role | Member | Code responsibilities | Analysis | Hand trace |
+|---|---|---|---|---|
+| M1 — GD | Adil Mutali | `src/optim/gd.py`; `src/problems/rosenbrock.py`; gradient checking | S1 — Step size and stability | H1 |
+| M2 — Newton | Dilnaz Bekturova | `src/optim/newton.py`; `src/problems/quadratic.py` | S2 — Conditioning, cost and safeguards | H2 |
+| M3 — Momentum | Alina Suleimenova | `src/optim/momentum.py`; `src/problems/project.py` | S3 — Momentum in the valley | H3 |
+| M4 — Adam | Miras Asem | `src/optim/adam.py`; experiment runner and tables | S4 — Adam and the rotated axes | H4 |
+| Group | All four members | Shared experiments, figures and report assembly | S5 and synthesis | H5 |
 
-| Check | Reference | Result |
-|---|---|---|
-| R1, GD α = 1e-3, absolute rule | 32 076 | 32 076 |
-| R1, GD-BT | 13 756 | 13 756 |
-| R1 start: f, ‖∇f‖ | 24.2, 232.86 | 24.2, 232.868 |
-| R2 start: f, ‖∇f‖ | 7.5123, 74.8335 | 7.5123, 74.8335 |
-| Q1 / Q2 start: f, ‖∇f‖ | 64.9, 180.619 | 64.9, 180.6187 (both) |
-| Q1 vs Q2, GD at α* = 1/130 | equal up to ±1 | 892 / 892 |
-| Q1 vs Q2, GD-BT | equal up to ±1 | 39 / 39 |
-| `check_grad` on R1 (−1.2, 1) | below 1e-6 | 2.24e-08 |
-| `check_grad` on R2 start, Q1, Q2 | below 1e-6 | 3.4e-09, 5.1e-09, 5.6e-09 |
+The M3 and M4 assignments follow the report and must be checked against the roles recorded in the original README.
 
-H1 (f = 2x² + 7y², x⁰ = (4, 1)) is reproduced to 1e-3 by `tests/test_gd.py`:
-two fixed steps with α = 0.05 give (3.2, 0.3) and (2.56, 0.09) with f = 21.11 and 13.1639;
-backtracking rejects α = 1, 0.5, 0.25 and accepts α = 0.125, giving x¹ = (2, −0.75), f = 11.9375.
+## Environment
 
-Additional GD numbers (Q1/Q2, c = 129, relative rule): GD at α* = 1/(1+c) needs 892 updates,
-the best grid value α = 10^−2.5 needs 1510, GD-BT needs 39 (R2: GD α = 1e-3 needs 32 794, GD-BT 17 291).
+The project uses Python 3, NumPy and Matplotlib. Pytest is included for test execution.
 
-### Analysis
+Dependencies in `requirements.txt`:
 
-`docs/S1_GD.md` (S1, signed): the t·2/λ_max sweep on Q1 against ρ(α), backtracking
-statistics on R1, Q1 and the project block, and the role of the starting guess α₀ = 1.
+- `numpy>=1.24`
+- `matplotlib>=3.7`
+- `pytest>=7`
 
-### Declaration (M1)
+The solver implementations use NumPy and the Python standard library. Matplotlib generates the figures.
 
-- **External code:** none in `src/optim/gd.py`. No `scipy.optimize`, `sklearn`, `autograd`, JAX or PyTorch is used.
-- **AI assistance:** an AI assistant (Claude, Anthropic) worked as my assistant on the M1 part. It explained the methods, helped debug, helped draft parts of `src/optim/gd.py`, `src/problems/rosenbrock.py`, `src/problems/check_grad.py` and the documentation, helped write the tests (`tests/test_gd.py`, `tests/test_grad.py`) and the S1 experiment script (`src/experiments/run_s1.py`), and checked my work against the assignment and the task file: it re-ran the reference counts and the gradient check and pointed out what did not match (broken test imports, a missing GD-BT column and the α* candidate in Table 1, mistakes in the S1 text). I reviewed and re-ran everything and I am responsible for understanding and defending the submitted work.
-- **Hand trace H1** is my own work on paper; AI was not used to produce it.
+## Installation and Execution
 
+Open a terminal in the repository root.
 
-
-
-## Individual Role: M2 — Newton Method
-
-**Author:** Dilnaz Bekturova, Team T16.
-
-### Responsibilities
-
-- Implement pure Newton and damped Newton with Armijo backtracking.
-- Implement Q1 and rotated Q2 objectives, analytical gradients and Hessians.
-- Prepare and verify the H2 hand trace.
-- Perform S2 experiments and analyze the results: conditioning,
-  iteration counts, computational cost, monotonicity and Hessian eigenvalues.
-- Compare Newton results with GD and Adam; complete the Momentum
-  comparison after verification of the team's implementation.
-
-### Implementation
-
-- `src/optim/newton.py`: pure and damped Newton methods.
-- `src/problems/quadratic.py`: Q1 and Q2 objectives, gradients and Hessians.
-- `tests/test_newton.py`: Newton verification tests.
-- `src/experiments/run_newton_s2.py`: reproducible S2 experiments.
-- `docs/S2_draft.md`: S2 analysis draft.
-- `hand/H2_Newton.pdf`: signed H2 hand trace.
-
-Newton directions are computed using `numpy.linalg.solve`.
-The optimizer implementation uses NumPy and the Python standard library.
-
-### Running the Tests and Experiments
-
-Run from the repository root:
+Create and activate a virtual environment:
 
 ```bash
-python -m unittest discover -s tests -p "test_newton.py" -v
-python -m src.experiments.run_newton_s2
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-All four Newton tests passed, covering:
+Install dependencies:
 
-- H2 hand-trace reproduction.
-- Quadratic rotation and analytical derivatives.
-- R1 reference iteration counts.
-- Stationary initial points and the iteration cap.
+```bash
+python3 -m pip install -r requirements.txt
+```
 
-On R1, starting at (−1.2, 1.0), pure Newton required 6 updates
-and damped Newton required 21 updates.
-The stopping criterion was the gradient norm below 1e-6.
+Run the tests:
 
-### S2 Results and Analysis
+```bash
+python3 -m tests.run_tests
+```
 
-For f_c(x) = x₁² + c x₂², all runs start at (1.3, 0.7).
-The stopping criterion is:
+Run all experiments:
 
-||∇f(x_k)|| < 1e-6 ||∇f(x_0)||.
+```bash
+python3 -m experiments.run_all
+```
 
-GD uses α* = 1 / (1 + c). Adam uses the prescribed tuning grid.
+The common runner regenerates tables, tuning results, derivative checks, analysis experiments and figures in `results/`. Figures are saved as files rather than displayed in separate windows.
 
-| c | GD α* updates | Tuned Adam updates | Pure Newton updates | Damped Newton updates |
-|---|---|---|---|---|
-| 10 | 69 | 205 | 1 | 1 |
-| 100 | 691 | 186 | 1 | 1 |
-| 1000 | 6908 | 185 | 1 | 1 |
-| 129 | 892 | 186 | 1 | 1 |
+To record the exact environment used for submission:
 
-GD slows as conditioning increases. Tuned Adam shows no comparable
-slowdown in these experiments; this does not establish general
-independence from conditioning.
+```bash
+python3 --version
+python3 -m pip freeze
+```
 
-Both Newton variants solve these positive definite quadratics
-in one update because the quadratic Taylor model is exact.
-Iteration counts alone do not account for the cost of solving
-the Newton linear system.
+## Repository Structure
 
-| Problem | Newton variant | Updates | Stopping criterion reached | Objective monotone |
-|---|---|---|---|---|
-| R2 | Pure | 7 | Yes | No |
-| R2 | Damped | 22 | Yes | Yes |
-| Project | Pure | 7 | Yes | No |
-| Project | Damped | 6 | Yes | Yes |
+```text
+src/
+  optim/
+    gd.py
+    newton.py
+    momentum.py
+    adam.py
+  problems/
+    rosenbrock.py
+    quadratic.py
+    project.py
+    check_grad.py
+  experiments/
+    run_all.py
+    plots.py
 
-The final Hessians have positive eigenvalues.
-For the project, both Newton variants reach an objective value
-of approximately 0.22159147, agreeing numerically with the known
-global optimum.
+experiments/
+  run_all.py
 
-A small gradient indicates approximate stationarity. Positive
-Hessian eigenvalues support the local minimum assessment; the
-project comparison with the known optimum provides additional
-numerical verification.
+tests/
+results/
+hand/
+report/
+requirements.txt
+README.md
+```
 
-GD, Adam and Newton results were reproduced using the team's
-implementations. Momentum results and the associated cost
-comparison remain provisional pending team verification.
+- `src/optim/`: optimization methods.
+- `src/problems/`: objectives and analytical derivatives.
+- `src/experiments/`: experiment orchestration and plotting.
+- `tests/`: verification of implementations and numerical results.
+- `results/`: CSV data behind the report tables and generated figures.
+- `hand/`: signed hand traces.
+- `report/`: report source and submission materials.
 
-Generated files:
+## Methods and Experimental Protocol
 
-- `results/s2_conditioning_team.csv`
-- `results/s2_adam_grid_team.csv`
-- `results/s2_safeguards_team.csv`
-- `results/s2_histories_team.csv`
+The six configurations are:
 
-### H2 — Newton Hand Trace
+1. Gradient Descent with a fixed step.
+2. Gradient Descent with Armijo backtracking.
+3. Pure Newton.
+4. Damped Newton with Armijo backtracking.
+5. Momentum.
+6. Adam.
 
-For f(x, y) = x² + exp(y) − 4y, starting at (3, 0):
+R1 and R2 use the absolute stopping rule:
 
-| k | Point (x, y) | f(x, y) | Gradient dot Newton direction | Absolute y error |
-|---|---|---|---|---|
-| 0 | (3, 0) | 10.0000 | −27.0000 | 1.3863 |
-| 1 | (0, 3) | 8.0855 | −12.8821 | 1.6137 |
-| 2 | (0, 2.1991) | 0.2207 | −2.7917 | 0.8129 |
+```text
+||gradient f(x_k)|| < 1e-6
+```
 
-The minimizer is (0, ln 4) ≈ (0, 1.3863),
-with f* = 4 − 4 ln 4 ≈ −1.5452.
+Q1, Q2 and the project use the relative stopping rule:
 
-The objective decreases over the two computed updates, although
-the absolute y error initially increases.
+```text
+||gradient f(x_k)|| < 1e-6 * ||gradient f(x_0)||
+```
 
-At k = 0, Armijo accepts the full step because:
+Iteration counts represent completed updates. Gradient methods have a limit of 100,000 updates; Newton methods have a limit of 100.
 
-8.0855 ≤ 10 + 1e-4 × (−27) = 9.9973.
+The initial step-size grid is:
 
-The error ratio at k = 1 is approximately 0.3122.
-The theoretical asymptotic ratio is 0.5; one measured ratio
-alone does not establish quadratic convergence.
+```text
+alpha = 10^(-5 + 0.5*j), j = 0, ..., 10
+```
 
-The direction at k = 2 is evaluated for the table;
-a third update is not performed.
+Momentum also tests:
 
-Numerical values are in `results/h2_values.csv`.
-The signed hand trace is in `hand/H2_Newton.pdf`.
+```text
+beta ∈ {0.5, 0.8, 0.9, 0.95, 0.99}
+```
 
-### M2 AI Assistance Declaration
+GD additionally tests `alpha = 1/130` on Q1 and Q2. Upper grid boundaries are extended by half-decades when required, up to `1e4`. Successful runs are ranked by update count; ties use the smaller alpha, then the smaller beta.
 
-AI assistance was used for implementation drafting, debugging
-and numerical verification.
+## Benchmark Results — Table 1
 
-I performed the test runs, reviewed the numerical
-outputs and analyzed the experimental results. She is responsible
-for reviewing and understanding her submitted work.
+| Problem | GD | GD-BT | Pure Newton | Damped Newton | Momentum | Adam |
+|---|---:|---:|---:|---:|---:|---:|
+| R1 | 32076 | 13756 | 6 | 21 | 857 | 1034 |
+| R2 | 32794 | 17291 | 7 | 22 | 1117 | 1219 |
+| Q1 | 892 | 39 | 1 | 1 | 120 | 186 |
+| Q2 | 892 | 39 | 1 | 1 | 120 | 213 |
+
+Selected parameters and experiment data are recorded in the generated CSV files and the report.
+
+## Cloud Project — Table 2
+
+The model uses 41 VM CPU requests with total demand `D = 201` and nine server capacities:
+
+```text
+C = (59, 46, 57, 35, 49, 43, 32, 52, 47)
+```
+
+The objective is:
+
+```text
+J(w) = (201² / 9) * sum_j(w_j² / C_j²)
+```
+
+Shares are parametrized by `softmax(z_1, ..., z_8, 0)`, starting from eight zero logits.
+
+The closed-form optimum is:
+
+```text
+w*_j = C_j² / 20258
+J* = 0.2215914700
+```
+
+| Method | Updates | Reaches the known optimum numerically? |
+|---|---:|---|
+| GD | 175 | Yes |
+| GD-BT | 1805 | Yes |
+| Pure Newton | 7 | Yes |
+| Damped Newton | 6 | Yes |
+| Momentum — prescribed selection | 2 | No |
+| Adam | 247 | Yes |
+
+The two-update Momentum run satisfies the gradient stopping rule because softmax saturates, but its objective is approximately `1.381655894`. A small logit gradient alone does not establish optimality.
+
+A supplementary Momentum run reaches the known optimum in 42 updates with `alpha = 10^1.5` and `beta = 0.5`. This accuracy-verified comparison is reported separately and does not replace the prescribed Table 2 selection.
+
+## Figures
+
+- **F1:** Rosenbrock R1 trajectories for all six configurations.
+- **F2:** Gradient-norm convergence on Q1 and Q2.
+- **F3:** Gradient-norm convergence on the cloud project.
+
+These figures are generated by `src/experiments/plots.py` through the common runner and saved in `results/`.
+
+## Declarations
+
+### Adil Mutali — M1
+
+AI assistance was used for explanations, implementation and documentation drafting, debugging guidance, and numerical verification of the M1 contribution.
+
+### Dilnaz Bekturova — M2
+
+AI assistance was used for implementation and documentation drafting, debugging, numerical verification, and preparation of the S2 analysis.
+
+### Shared Work
+
+AI assistance was used to draft `src/problems/project.py`, assist with the common experiment runner and verification, and prepare the LaTeX report and this README.
+
+The cloud data and problem conventions come from the course task files and Team T16's Checkpoint 1 materials. The solver implementations do not use an external optimization solver library.
+
+### Declarations Still Requiring Completion
+
+Alina Suleimenova and Miras Asem must provide their own declarations of AI assistance and external sources. Each member must review the description of their contribution and take responsibility for understanding and defending the submitted work.
+
+## Submission Record
+
+The report currently contains a placeholder for the final commit hash. Replace it with the actual submitted commit:
+
+```bash
+git rev-parse HEAD
+```
+
+Before submission, confirm the original role assignments, complete all individual declarations, and include the required signed hand traces.
