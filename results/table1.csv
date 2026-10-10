@@ -1,25 +1,25 @@
 Problem,Solver,Iterations,Parameters
 R1,GD,32076,a=1.00e-03
 R1,GD-BT,13756,—
-R1,Newton (pure),6,—
-R1,Newton (damped),21,—
+R1,Newton pure,6,—
+R1,Newton damped,21,—
 R1,Momentum,857,"a=3.16e-03, b=0.9"
 R1,Adam,1034,a=3.16e-01
 R2,GD,32794,a=1.00e-03
 R2,GD-BT,17291,—
-R2,Newton (pure),7,—
-R2,Newton (damped),22,—
+R2,Newton pure,7,—
+R2,Newton damped,22,—
 R2,Momentum,1117,"a=1.00e-03, b=0.95"
 R2,Adam,1219,a=1.00e+00
 Q1,GD,892,a=7.69e-03
 Q1,GD-BT,39,—
-Q1,Newton (pure),1,—
-Q1,Newton (damped),1,—
+Q1,Newton pure,1,—
+Q1,Newton damped,1,—
 Q1,Momentum,120,"a=1.00e-02, b=0.8"
 Q1,Adam,186,a=1.00e-01
 Q2,GD,892,a=7.69e-03
 Q2,GD-BT,39,—
-Q2,Newton (pure),1,—
-Q2,Newton (damped),1,—
+Q2,Newton pure,1,—
+Q2,Newton damped,1,—
 Q2,Momentum,120,"a=1.00e-02, b=0.8"
 Q2,Adam,213,a=3.16e-01

@@ -1,7 +1,7 @@
 Problem,Solver,Iterations,Parameters
 Project,GD,175,a=1.00e+01
 Project,GD-BT,1805,—
-Project,Newton (pure),7,—
-Project,Newton (damped),6,—
+Project,Newton pure,7,—
+Project,Newton damped,6,—
 Project,Momentum,2,"a=3.16e+02, b=0.5"
 Project,Adam,247,a=3.16e-01

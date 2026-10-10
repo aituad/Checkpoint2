@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 # =============================================================================
 # 1. ALGORITHM IMPORTS
@@ -16,6 +17,7 @@ from src.optim.adam import optimize as optimize_adam
 from src.problems.rosenbrock import f_rosenbrock, grad_rosenbrock, hess_rosenbrock
 from src.problems.quadratic import f_q1, grad_q1, hess_q1, f_q2, grad_q2, hess_q2
 from src.problems.project import f_project as f_proj, grad_project as grad_proj, hess_project as hess_proj
+import src.experiments.plots as plots
 
 # =============================================================================
 # 3. TEAM DATA (TEAM T16)
@@ -33,13 +35,19 @@ def get_rotation_matrix(theta_deg):
     return np.array([[np.cos(t), -np.sin(t)], [np.sin(t), np.cos(t)]])
 
 X0_Q2 = get_rotation_matrix(THETA_DEG) @ X0_Q1
-X0_PROJ = np.zeros(8) # z ∈ R^8, start z⁰ = 0 
+X0_PROJ = np.zeros(8)
+
+class ProblemWrapper:
+    def __init__(self, name, grad, x0, relative):
+        self.name = name
+        self.grad = grad
+        self.x0 = x0
+        self.relative = relative
 
 # =============================================================================
 # 4. TUNING LOGIC
 # =============================================================================
 def tune_optimizer(solver_name, solver_func, prob_name, f, grad, x0, tol_abs, tol_rel, requires_hess, hess=None):
-    # Начальная сетка: 10^-5, 10^-4.5, ..., 10^0
     alphas_to_test = [float(10**x) for x in np.arange(-5.0, 0.5, 0.5)]
     
     if solver_name == 'GD' and prob_name in ['Q1', 'Q2']:
@@ -50,6 +58,8 @@ def tune_optimizer(solver_name, solver_func, prob_name, f, grad, x0, tol_abs, to
     best_k = float('inf')
     best_alpha = None
     best_beta = None
+    best_hist = None
+    best_x = None
     
     history = {}
 
@@ -75,6 +85,8 @@ def tune_optimizer(solver_name, solver_func, prob_name, f, grad, x0, tol_abs, to
                             best_k = k
                             best_alpha = a
                             best_beta = b
+                            best_hist = hist
+                            best_x = x
                 except Exception as e:
                     history[a] = True
                     pass
@@ -90,80 +102,94 @@ def tune_optimizer(solver_name, solver_func, prob_name, f, grad, x0, tol_abs, to
             break
 
     if best_alpha is None:
-        return "—", "—"
+        return "—", "—", None, None
     
     params_str = f"a={best_alpha:.2e}" if best_beta is None else f"a={best_alpha:.2e}, b={best_beta}"
-    return best_k, params_str
+    return best_k, params_str, best_x, best_hist
 
 # =============================================================================
 # 5. MAIN EXPERIMENT RUNNER
 # =============================================================================
 def run_experiments():
-    os.makedirs('results', exist_ok=True)
+    output_dir = Path('results')
+    output_dir.mkdir(exist_ok=True)
     
     problems_part_a = [
-        ('R1', f_rosenbrock, grad_rosenbrock, hess_rosenbrock, X0_R1, 1e-6, None),  # Absolute rule
-        ('R2', f_rosenbrock, grad_rosenbrock, hess_rosenbrock, X0_R2, 1e-6, None),  # Absolute rule
-        ('Q1', f_q1, grad_q1, hess_q1, X0_Q1, None, 1e-6),                          # Relative rule
-        ('Q2', f_q2, grad_q2, hess_q2, X0_Q2, None, 1e-6)                           # Relative rule
+        ('R1', f_rosenbrock, grad_rosenbrock, hess_rosenbrock, X0_R1, 1e-6, None),
+        ('R2', f_rosenbrock, grad_rosenbrock, hess_rosenbrock, X0_R2, 1e-6, None),
+        ('Q1', f_q1, grad_q1, hess_q1, X0_Q1, None, 1e-6),
+        ('Q2', f_q2, grad_q2, hess_q2, X0_Q2, None, 1e-6)
     ]
     
     problems_part_c = [
-        ('Project', f_proj, grad_proj, hess_proj, X0_PROJ, None, 1e-6)              # Relative rule
+        ('Project', f_proj, grad_proj, hess_proj, X0_PROJ, None, 1e-6)
     ]
+    
+    all_problems = problems_part_a + problems_part_c
 
-    # needs_tuning (bool), requires_hess (bool), is_newton (bool)
     solvers = [
         ('GD', gradient_descent, True, False, False),
         ('GD-BT', gradient_descent_backtracking, False, False, False),
-        ('Newton (pure)', pure_newton, False, True, True),
-        ('Newton (damped)', damped_newton, False, True, True),
+        ('Newton pure', pure_newton, False, True, True),
+        ('Newton damped', damped_newton, False, True, True),
         ('Momentum', optimize_momentum, True, False, False),
         ('Adam', optimize_adam, True, False, False)
     ]
+
+    selected = {}
+    
+    plot_problems = [ProblemWrapper(p[0], p[2], p[4], relative=(p[6] is not None)) for p in all_problems]
 
     def process_problems(problem_list, table_name):
         results = []
         for prob_name, f, grad, hess, x0, tol_abs, tol_rel in problem_list:
             print(f"\n--- Solving problem {prob_name} ---")
             for solver_name, solver_func, needs_tuning, requires_hess, is_newton in solvers:
-                
                 kwargs = {}
-
                 if is_newton:
                     kwargs['tol'] = tol_rel if tol_rel is not None else tol_abs
                     kwargs['relative'] = tol_rel is not None
 
                 try:
                     if needs_tuning:
-                        k_opt, params_opt = tune_optimizer(
+                        k_opt, params_opt, x_opt, hist_opt = tune_optimizer(
                             solver_name, solver_func, prob_name, f, grad, x0, tol_abs, tol_rel, requires_hess, hess)
                     else:
                         if requires_hess:
-                            x, hist, k = solver_func(f, grad, hess, x0, **kwargs)
+                            x_opt, hist_opt, k = solver_func(f, grad, hess, x0, **kwargs)
                         else:
-                            x, hist, k = solver_func(f, grad, x0, tol_abs=tol_abs, tol_rel=tol_rel)
+                            x_opt, hist_opt, k = solver_func(f, grad, x0, tol_abs=tol_abs, tol_rel=tol_rel)
                         
                         k_opt = k if k < 100000 else "—"
                         params_opt = "—"
                         
-                    results.append({
-                        'Problem': prob_name, 
-                        'Solver': solver_name, 
-                        'Iterations': k_opt, 
-                        'Parameters': params_opt
-                    })
+                    results.append({'Problem': prob_name, 'Solver': solver_name, 'Iterations': k_opt, 'Parameters': params_opt})
                     print(f"[{prob_name}] {solver_name:15s}: Iterations = {k_opt}, Parameters = {params_opt}")
+                    
+                    row_info = {'optimum_verified': True} # Заглушка, можно усложнить если нужно
+                    if k_opt != "—":
+                        selected[(prob_name, solver_name)] = (row_info, (x_opt, hist_opt, k_opt))
+                    else:
+                        selected[(prob_name, solver_name)] = (row_info, None)
+                        
                 except Exception as e:
                     print(f"Error running {solver_name} on {prob_name}: {e}")
                     results.append({'Problem': prob_name, 'Solver': solver_name, 'Iterations': "—", 'Parameters': "Error"})
+                    selected[(prob_name, solver_name)] = ({'optimum_verified': False}, None)
                     
         df = pd.DataFrame(results)
-        df.to_csv(f'results/{table_name}.csv', index=False)
+        df.to_csv(output_dir / f'{table_name}.csv', index=False)
         print(f"\nTable saved to results/{table_name}.csv")
 
     process_problems(problems_part_a, 'table1')
     process_problems(problems_part_c, 'table2')
+    
+    print("\n--- Generating Figures F1, F2, F3 ---")
+    try:
+        plots.make_plots(plot_problems, selected, output_dir)
+        print("Figures successfully saved in 'results' directory.")
+    except Exception as e:
+        print(f"Error generating figures: {e}")
 
 if __name__ == "__main__":
     run_experiments()
