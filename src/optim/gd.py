@@ -1,4 +1,3 @@
-
 import numpy as np
 
 
@@ -16,7 +15,6 @@ def gradient_descent(f, grad, x0, alpha, max_iter=100_000, tol_abs=None, tol_rel
         g = np.asarray(grad(x), dtype=float)
         g_norm = np.linalg.norm(g)
         
-        # Проверка на NaN, Inf или слишком большие значения (Blow-up guard)
         if not np.all(np.isfinite(x)) or not np.all(np.isfinite(g)) or np.linalg.norm(x) > 1e12:
             return x, np.asarray(hist), k
             
