@@ -218,9 +218,6 @@ AI assistance was used to draft `src/problems/project.py`, assist with the commo
 
 The cloud data and problem conventions come from the course task files and Team T16's Checkpoint 1 materials. The solver implementations do not use an external optimization solver library.
 
-### Declarations Still Requiring Completion
-
-Alina Suleimenova and Miras Asem must provide their own declarations of AI assistance and external sources. Each member must review the description of their contribution and take responsibility for understanding and defending the submitted work.
 
 ## Submission Record
 
