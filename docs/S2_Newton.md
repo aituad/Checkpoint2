@@ -78,11 +78,11 @@ python -m src.experiments.run_newton_s2
 
 Numerical results and tuning trials are stored in:
 
-- `results/s2_conditioning_team.csv`
-- `results/s2_adam_grid_team.csv`
-- `results/s2_momentum_grid_team.csv`
-- `results/s2_safeguards_team.csv`
-- `results/s2_histories_team.csv`
+results/s2_conditioning.csv
+results/s2_grid.csv
+results/s2_cost.csv
+results/s2_safeguards.csv
+results/histories.csv
 
 The Momentum results reported here cover the conditioning experiments. They do not verify Momentum results for R1, R2, rotated Q2 or the project.
 
