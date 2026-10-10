@@ -6,7 +6,6 @@
 - **Storyline:** B — Cloud
 - **Variant:** 3
 - **Seed:** 16
-- **Repository:** https://github.com/aituad/Checkpoint2
 - **Submission tag:** `checkpoint2`
 
 This project compares six optimization configurations on Rosenbrock, two quadratic problems, and a continuous cloud load-balancing model based on our Checkpoint 1 data.
