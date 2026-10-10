@@ -184,6 +184,6 @@ The signed hand trace is in `hand/H2_Newton.pdf`.
 AI assistance was used for implementation drafting, debugging
 and numerical verification.
 
-Dilnaz Bekturova performed the test runs, reviewed the numerical
+I performed the test runs, reviewed the numerical
 outputs and analyzed the experimental results. She is responsible
 for reviewing and understanding her submitted work.
