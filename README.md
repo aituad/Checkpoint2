@@ -212,6 +212,14 @@ AI assistance was used for explanations, implementation and documentation drafti
 
 AI assistance was used for implementation and documentation drafting, debugging, numerical verification, and preparation of the S2 analysis.
 
+### Alina Suleimenova - M3
+
+AI tools were used to support explanations, code implementation, documentation preparation, debugging, and numerical validation of the M3 contribution.
+
+### Miras Asem - M4
+
+AI tools were utilized to support explanations, implementation, documentation preparation, debugging, and numerical verification of the M4 contribution.
+
 ### Shared Work
 
 AI assistance was used to draft `src/problems/project.py`, assist with the common experiment runner and verification, and prepare the LaTeX report and this README.
