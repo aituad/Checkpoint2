@@ -14,22 +14,22 @@ def gradient_descent(f, grad, x0, alpha, max_iter=100_000, tol_abs=None, tol_rel
     for k in range(max_iter + 1):
         g = np.asarray(grad(x), dtype=float)
         g_norm = np.linalg.norm(g)
-        
+
         if not np.all(np.isfinite(x)) or not np.all(np.isfinite(g)) or np.linalg.norm(x) > 1e12:
             return x, np.asarray(hist), k
-            
-        # Проверка абсолютной остановки (как для Розенброка)
+
+        # Absolute stopping rule (R1, R2)
         if tol_abs is not None and g_norm < tol_abs:
             return x, np.asarray(hist), k
-            
-        # Проверка относительной остановки (как для квадратичных функций)
+
+        # Relative stopping rule (Q1, Q2, project)
         if tol_rel is not None and g_norm < tol_rel * g0_norm:
             return x, np.asarray(hist), k
-            
+
         if k == max_iter:
             return x, np.asarray(hist), k
-            
-        # Шаг алгоритма
+
+        # Fixed-step update
         x = x - alpha * g
         hist.append(x.copy())
 
@@ -55,17 +55,17 @@ def gradient_descent_backtracking(
     for k in range(max_iter + 1):
         g = np.asarray(grad(x), dtype=float)
         g_norm = np.linalg.norm(g)
-        
-        # Проверка на NaN, Inf или взрыв
+
+        # Stop on NaN/Inf or blow-up
         if not np.all(np.isfinite(x)) or not np.all(np.isfinite(g)) or np.linalg.norm(x) > 1e12:
             break
-            
-        # Проверки остановки
+
+        # Stopping rules
         if tol_abs is not None and g_norm < tol_abs:
             break
         if tol_rel is not None and g_norm < tol_rel * g0_norm:
             break
-            
+
         if k == max_iter:
             break
 
@@ -74,8 +74,8 @@ def gradient_descent_backtracking(
         h = 0
         fx = float(f(x))
         gd = float(np.dot(g, d))
-        
-        # Условие Армихо
+
+        # Armijo condition
         while float(f(x + alpha * d)) > fx + armijo_c * alpha * gd:
             alpha *= 0.5
             h += 1
