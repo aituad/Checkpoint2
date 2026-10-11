@@ -20,7 +20,7 @@ This project compares six optimization configurations on Rosenbrock, two quadrat
 | M4 — Adam | Miras Asem | `src/optim/adam.py`; experiment runner and tables | S4 — Adam and the rotated axes | H4 |
 | Group | All four members | Shared experiments, figures and report assembly | S5 and synthesis | H5 |
 
-The M3 and M4 assignments follow the report and must be checked against the roles recorded in the original README.
+
 
 ## Environment
 
