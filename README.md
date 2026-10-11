@@ -218,13 +218,3 @@ AI assistance was used to draft `src/problems/project.py`, assist with the commo
 
 The cloud data and problem conventions come from the course task files and Team T16's Checkpoint 1 materials. The solver implementations do not use an external optimization solver library.
 
-
-## Submission Record
-
-The report currently contains a placeholder for the final commit hash. Replace it with the actual submitted commit:
-
-```bash
-git rev-parse HEAD
-```
-
-Before submission, confirm the original role assignments, complete all individual declarations, and include the required signed hand traces.
