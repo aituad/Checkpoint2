@@ -172,3 +172,22 @@ def test_adapter_row_split(t16):
     assert A_eq.shape == (41, 378) and A_ub.shape == (54, 378)
     assert [mm.families[i] for i in eq_idx] == ["B1_assignment"] * 41
     assert sorted(set(ub_idx) | set(eq_idx)) == list(range(95))
+def test_t16_optimal_cpu_loads_are_unique_and_not_integral(t16):
+    """Every LP-optimal point has the same CPU load on every server, and 8 of the 9 loads
+    are not integers. An integer solution has integer loads, so none is LP-optimal: z* > z_LP."""
+    from scipy.optimize import linprog
+    d, (c, A_ub, b_ub, A_eq, b_eq, bounds), info, res = t16
+    M, S = info["M"], info["S"]
+    A2 = np.vstack([A_ub, c])
+    b2 = np.r_[b_ub, res.fun + 1e-9]                 # restrict to the optimal face
+    cpu = d["cpu_req"].astype(float)
+    loads = []
+    for l in range(S):
+        g = np.zeros(len(c))
+        g[l:M * S:S] = cpu
+        lo = linprog(g, A_ub=A2, b_ub=b2, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs").fun
+        hi = -linprog(-g, A_ub=A2, b_ub=b2, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs").fun
+        assert hi - lo < 1e-5                        # min load == max load on the optimal face
+        loads.append(lo)
+    assert np.allclose(loads, [35.4, 15.1, 34.2, 8.75, 29.4, 10.75, 8.0, 31.2, 28.2], atol=1e-4)
+    assert sum(abs(x - round(x)) > 1e-3 for x in loads) == 8
