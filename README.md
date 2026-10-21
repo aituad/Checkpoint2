@@ -226,3 +226,13 @@ AI assistance was used to draft `src/problems/project.py`, assist with the commo
 
 The cloud data and problem conventions come from the course task files and Team T16's Checkpoint 1 materials. The solver implementations do not use an external optimization solver library.
 
+
+## Checkpoint 3 — M2
+
+| Role | Member | Code | Analysis | Hand task |
+|---|---|---|---|---|
+| M2 — LP | Adil Mutali | `src/lp/` | S2 — Value and fractionality of the LP | H2 |
+
+### Adil Mutali — M2 (Checkpoint 3)
+
+AI assistance (Claude) was used to test `src/lp/`, `tests/test_m2.py`, the results CSV files and the drafts of S2 and H2. I reviewed and ran the code; the H2 hand solution is written and signed by me.
