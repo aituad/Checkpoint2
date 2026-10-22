@@ -2,7 +2,8 @@
 
     python3 -m src.lp.run_m2
 
-Writes results/m2_lp.csv and results/m2_fractional.csv. The model is M1's
+Writes results/m2_lp.csv, results/m2_fractional.csv and results/m2_solution.npz
+(x, pi, r for the checker of M3, see src/lp/export.py). The model is M1's
 (src/model/cloud.py); src/lp/reference_b.py is M2's independent build, used only
 in tests/test_m2.py to check that both give identical matrices.
 """
@@ -13,6 +14,7 @@ import numpy as np
 
 from checkpoint3_generator_PUBLIC import cp34_instance
 from src.lp.adapter import to_linprog
+from src.lp.export import solution_vectors, save_solution
 from src.model.cloud import build_matrices
 from src.lp.solve import solve_lp, fractional_report
 
@@ -24,7 +26,7 @@ TOL = 1e-6
 def run():
     d = cp34_instance(SEED, STORY, VARIANT)
     mm = build_matrices(d)
-    c, A_ub, b_ub, A_eq, b_eq, bounds, _, _ = to_linprog(mm)
+    c, A_ub, b_ub, A_eq, b_eq, bounds, ub_idx, eq_idx = to_linprog(mm)
     info = {"n_vars": len(mm.c), "n_rows": len(mm.b),
             "n_fixed": int(np.sum(mm.upper == 0)), "M": int(d["M"]), "S": int(d["S"])}
     res = solve_lp(c, A_ub, b_ub, A_eq, b_eq, bounds)
@@ -32,12 +34,14 @@ def run():
     y = x[: info["M"] * info["S"]].reshape(info["M"], info["S"])
     t = x[info["M"] * info["S"]:]
     frac = fractional_report(y, TOL)
-    return d, info, res, y, t, frac
+    pi, r = solution_vectors(mm, res, ub_idx, eq_idx)
+    return d, info, res, y, t, frac, mm, pi, r
 
 
 def main():
-    d, info, res, y, t, frac = run()
+    d, info, res, y, t, frac, mm, pi, r = run()
     RESULTS.mkdir(exist_ok=True)
+    save_solution(RESULTS / "m2_solution.npz", mm, res, pi, r)
     rows = [
         ("instance", f"cp34_instance({SEED}, '{STORY}', {VARIANT})"),
         ("n_variables", info["n_vars"]),

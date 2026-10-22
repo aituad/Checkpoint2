@@ -191,3 +191,25 @@ def test_t16_optimal_cpu_loads_are_unique_and_not_integral(t16):
         loads.append(lo)
     assert np.allclose(loads, [35.4, 15.1, 34.2, 8.75, 29.4, 10.75, 8.0, 31.2, 28.2], atol=1e-4)
     assert sum(abs(x - round(x)) > 1e-3 for x in loads) == 8
+
+
+# ---------------------------------------------------------------- export for the checker (M3)
+def test_export_vectors_are_consistent_with_the_lp(t16):
+    """x, pi, r exported for M3: right sizes, strong duality holds, and r matches HiGHS bound marginals."""
+    from src.lp.export import solution_vectors, strong_duality_gap
+    d, _, _, res = t16
+    mm = build_matrices(d)
+    _, _, _, _, _, _, ub_idx, eq_idx = to_linprog(mm)
+    pi, r = solution_vectors(mm, res, ub_idx, eq_idx)
+    assert res.x.shape == (378,) and pi.shape == (95,) and r.shape == (378,)
+    assert abs(strong_duality_gap(mm, res.x, pi, r)) < 1e-7           # condition (e)
+    # sign convention: <= rows have price <= 0 (minimisation, d z / d b)
+    assert np.max(pi[ub_idx]) <= 1e-9
+    # r = c - A^T pi equals the marginals HiGHS reports for the bounds
+    assert np.allclose(r, res.dual_lower + res.dual_upper, atol=1e-7)
+    # complementary slackness of the rows and reduced-cost signs on free (non-fixed) variables
+    assert np.max(np.abs(pi * (mm.b - mm.A @ res.x))) < 1e-7           # condition (c)
+    free = mm.upper > 0
+    x = res.x
+    assert np.all(r[free & (x < 1e-9)] >= -1e-7)
+    assert np.all(r[free & (x > 1e-9) & (x < 1 - 1e-9) & np.isfinite(mm.upper)] == pytest.approx(0, abs=1e-7))
