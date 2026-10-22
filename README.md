@@ -227,12 +227,538 @@ AI assistance was used to draft `src/problems/project.py`, assist with the commo
 The cloud data and problem conventions come from the course task files and Team T16's Checkpoint 1 materials. The solver implementations do not use an external optimization solver library.
 
 
-## Checkpoint 3 — M2
+# Checkpoint 3 — Team T16
 
-| Role | Member | Code | Analysis | Hand task |
+## Constrained Optimization and Cloud Resource Allocation
+
+- **Section:** 4
+- **Storyline:** B — Cloud Resource Allocation
+- **Variant:** 3 — GPU compatibility
+- **Seed:** 16
+- **Submission tag:** `checkpoint3`
+- **Deadline:** October 23, 2026, 23:59
+- **Repository:** https://github.com/aituad/Checkpoint2
+
+This checkpoint studies the prescribed B3 reference model for placing virtual machines on servers subject to CPU, memory and GPU-compatibility restrictions.
+
+The team solves the LP relaxation, examines fractional assignments, checks LP optimality conditions and studies sensitivity to a designated right-hand-side perturbation. The LP optimum provides a lower bound for the integer reference model used in Checkpoint 4.
+
+Checkpoint 3 uses the existing repository from Checkpoint 2. Previous checkpoint files and history are retained.
+
+## Team Roles
+
+| Role | Member | Code responsibilities | Analysis | Hand task |
 |---|---|---|---|---|
-| M2 — LP | Adil Mutali | `src/lp/` | S2 — Value and fractionality of the LP | H2 |
+| M1 — Model | Dilnaz Bekturova | `src/model/`: data, reference model, matrices and row/column bookkeeping | S1 — The model and what it ignores | H1 |
+| M2 — LP | Adil Mutali | `src/lp/`: solving the LP and reading its solution | S2 — Value and fractionality of the LP | H2 |
+| M3 — KKT | [Confirm member] | `src/kkt/`: independent checker of five optimality conditions | S3 — Is the solution optimal, and how do we know? | H3 |
+| M4 — Sensitivity | [Confirm member] | `src/sens/`: RHS perturbations and slope interval check | S4 — What the dual price says about the storyline | H4 |
+| Group | All four members | Task 5, common runner, tables, report and contribution statement | S5 and Synthesis | H5 |
 
-### Adil Mutali — M2 (Checkpoint 3)
+The remaining team members are Alina Suleimenova and Miras Asem. Their M3/M4 assignments must be confirmed against the team's agreed roles.
+
+## Environment
+
+The M1 implementation was tested with:
+
+- Python 3.11.9
+- NumPy 2.4.4
+- PuLP 3.3.2
+
+PuLP must remain below version 4, as required by the assignment.
+
+### Installation
+
+Run from the repository root:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install numpy "pulp<4"
+```
+
+Check the installed version:
+
+```bash
+python -c "import pulp; print(pulp.__version__)"
+```
+
+The output must show a version below 4.
+
+## Data Generation
+
+The public generator is supplied by the course:
+
+```python
+from checkpoint3_generator_PUBLIC import cp34_instance
+
+data = cp34_instance(16, "B", 3)
+```
+
+The generator is used unchanged. The same instance call must be retained for Checkpoint 4.
+
+### Verified T16 Check Values
+
+| Check | Value |
+|---|---:|
+| Servers | 9 |
+| Virtual machines | 41 |
+| Total CPU capacity | 420 |
+| Total memory capacity | 1339 |
+| Total CPU request | 201 |
+| Total memory request | 706 |
+| Forbidden VM–server pairs | 35 |
+| Variables | 378 |
+| Constraint rows | 95 |
+
+The designated sensitivity constraint is the assignment row for VM index `9`, whose CPU request is `8`. Indices start at zero.
+
+## Reference Model — B3
+
+### Variables
+
+- `y[k,l]`: assignment of VM `k` to server `l`.
+- `t[l]`: nonnegative latency approximation for server `l`.
+
+The integer reference model uses binary assignments. Its LP relaxation uses:
+
+```text
+0 <= y[k,l] <= 1
+t[l] >= 0
+```
+
+If VM `k` requires a GPU and server `l` is not GPU-enabled, `y[k,l]` is retained with upper bound zero.
+
+### Objective
+
+Minimize total server latency:
+
+```text
+minimize sum_l t[l]
+```
+
+### Constraint Families
+
+| Family | Meaning | Number of rows |
+|---|---|---:|
+| B1 | Each VM is assigned completely in total | 41 |
+| B2 | CPU capacity of each server | 9 |
+| B3 | Memory capacity of each server | 9 |
+| B4 | Four latency tangent inequalities per server | 36 |
+| Total | Variable bounds excluded | 95 |
+
+For utilization `u`, the latency function is:
+
+```text
+g(u) = u / (1-u)
+```
+
+The prescribed tangent points are:
+
+```text
+0.0, 0.4, 0.7, 0.9
+```
+
+For a tangent point `v`:
+
+```text
+a_v = 1 / (1-v)^2
+b_v = -v^2 / (1-v)^2
+```
+
+The latency constraint is:
+
+```text
+t[l] >= a_v * CPU_load[l] / CPU_capacity[l] + b_v
+```
+
+The matrix implementation stores its equivalent `<=` form:
+
+```text
+a_v * CPU_load[l] / CPU_capacity[l] - t[l] <= -b_v
+```
+
+No zone restrictions are added to variant B3.
+
+## M1 — Model, Matrices and Bookkeeping
+
+**Owner: Dilnaz Bekturova**
+
+### Files
+
+| File | Purpose |
+|---|---|
+| `src/model/cloud.py` | Reference B3 matrices and PuLP LP-model builder |
+| `src/model/triangle.py` | Independent enumeration for the H1 triangle problem |
+| `tests/test_model.py` | Model, generator and H1 verification |
+| `experiments/run_m1.py` | Export of matrices, indexing, model sizes and H1 results |
+| `docs/M1_report.tex` | Task 1 formulation, S1 analysis and H1 worked solution |
+| `README_M1.md` | Detailed M1 integration instructions |
+
+### Matrix Convention
+
+The variable vector contains all assignments first, followed by latency variables:
+
+```text
+x = (y[0,0], ..., y[40,8], t[0], ..., t[8])
+```
+
+Zero-based column indices:
+
+```text
+column(y[k,l]) = 9*k + l
+column(t[l])   = 369 + l
+```
+
+The objective vector has:
+
+```text
+369 zero coefficients for assignments
+9 unit coefficients for latency variables
+```
+
+The matrix has shape:
+
+```text
+A.shape = (95, 378)
+```
+
+Zero-based row indices:
+
+```text
+B1 assignment: k
+B2 CPU:        41 + l
+B3 memory:     50 + l
+B4 latency:    59 + 4*l + m
+```
+
+Here `m = 0,1,2,3` indexes the ordered tangent points.
+
+Rows B1 are equalities. Rows B2–B4 are stored as `<=` inequalities.
+
+Assignment upper bounds are one, except for 35 forbidden pairs with upper bound zero. Latency variables have no upper bound. Bounds are not counted as constraint rows.
+
+### Interface for Other Roles
+
+```python
+from src.model.cloud import build_matrices, build_pulp_model
+
+matrix = build_matrices()
+model, y, t = build_pulp_model(matrix=matrix)
+```
+
+The matrix object provides:
+
+```text
+c, A, b, senses
+lower, upper
+columns, rows, families
+data
+```
+
+M2 can solve the returned PuLP model and read `y[k,l]` and `t[l]`.
+
+M3 should align primal values and row prices using the stored names and indices, rather than assuming the solver's internal ordering matches the matrix ordering.
+
+Since B4 is multiplied by `-1`, its matrix-row dual price has the opposite sign to the original `>=` row price. Variables fixed at zero require appropriate treatment of both bounds in the KKT checker.
+
+M4 uses:
+
+```text
+Row name:  assign_9
+Row index: 9
+Base RHS:  1
+```
+
+The perturbed values are `0.99`, `1.00` and `1.01`. This changes the assignment RHS, not the CPU request or server capacity.
+
+### Run M1 Tests
+
+```bash
+python -m unittest discover -s tests -p "test_model.py" -v
+```
+
+Six tests passed in the verified M1 run:
+
+1. Assignment and capacity coefficients.
+2. Generator check values.
+3. H1 enumeration and integer optimum.
+4. H1 matrices and dual-sign conversion.
+5. Latency inequalities against the original tangent form.
+6. Actual PuLP model sizes and GPU bounds.
+
+### Generate M1 Outputs
+
+```bash
+python -m experiments.run_m1
+```
+
+The verified output reports:
+
+```text
+variables:      378
+rows:           95
+forbidden_pairs: 35
+B1_assignment:   41
+B2_CPU:           9
+B3_memory:        9
+B4_latency:      36
+```
+
+### Generated Files
+
+| File | Contents |
+|---|---|
+| `results/m1_matrices.npz` | Matrices, bounds and indexing metadata |
+| `results/m1_rows.csv` | Row indices, names, families, senses and RHS values |
+| `results/m1_columns.csv` | Column indices, names, bounds and objective coefficients |
+| `results/m1_model_sizes.csv` | Actual model sizes and family counts |
+| `results/h1_binary_points.csv` | All eight binary points for H1 |
+| `results/T16_B3_relaxation.lp` | Inspectable LP-model export |
+
+The M1 runner builds and exports the model. It does not compute the main LP optimum, fractionality or sensitivity results.
+
+## H1 — Model Owner Hand Task
+
+The T16 triangle problem is:
+
+```text
+minimize 3*y1 + 5*y2 + 6*y3
+
+y1 + y2 >= 1
+y2 + y3 >= 1
+y1 + y3 >= 1
+```
+
+Its LP relaxation has `0 <= y[j] <= 1`, three variables and three constraint rows.
+
+The hand task contains:
+
+- The vectors `c`, `b` and matrix `A`.
+- Conversion from `>=` to `<=` rows.
+- The corresponding reversal of dual-price signs.
+- Enumeration of all eight binary points.
+- Identification of the integer optimum.
+
+| Binary point | Feasible? | Cost |
+|---|---|---:|
+| `(0,0,0)` | No | 0 |
+| `(0,0,1)` | No | 6 |
+| `(0,1,0)` | No | 5 |
+| `(0,1,1)` | Yes | 11 |
+| `(1,0,0)` | No | 3 |
+| `(1,0,1)` | Yes | 9 |
+| `(1,1,0)` | Yes | 8 |
+| `(1,1,1)` | Yes | 14 |
+
+The integer optimum is:
+
+```text
+z* = 8
+y* = (1,1,0)
+```
+
+`tests/test_model.py` reproduces these results and checks the matrix/sign conversion.
+
+The final signed hand page is to be stored as:
+
+```text
+hand/CP3_H1_Model.pdf
+```
+
+The typeset source does not replace the requirement to complete the hand work and provide a real signature.
+
+## Tasks 2–5 and Required Tables
+
+The following results must be supplied by their owners and integrated into the complete team report.
+
+### Table 1 — Model and LP Solution
+
+Include:
+
+- Model sizes and check values.
+- LP objective `zLP`, reported to six decimals.
+- Solver and solution time.
+- Number of fractional assignment variables.
+- Number of VMs split across multiple servers.
+
+M1 has verified the model sizes and check values. LP results must come from the actual M2 solver run.
+
+### Table 2 — Optimality Conditions
+
+Report the largest violation or residual for:
+
+1. Primal feasibility.
+2. Dual-price signs.
+3. Row complementary slackness.
+4. Reduced-cost conditions.
+5. Strong duality.
+
+The required tolerance is `1e-6`. The checker must accept another solver's solution and must account for variable bounds.
+
+### Table 3 — Sensitivity
+
+For assignment row `assign_9`, solve at RHS values:
+
+```text
+0.99, 1.00, 1.01
+```
+
+Report:
+
+```text
+left slope = (z(1.00) - z(0.99)) / 0.01
+dual price = solver price of assign_9 at RHS 1.00
+right slope = (z(1.01) - z(1.00)) / 0.01
+```
+
+Check, to tolerance `1e-6`:
+
+```text
+left slope <= dual price <= right slope
+```
+
+### Task 5 — Group Work
+
+Include:
+
+- A short proof that `zLP <= z*`.
+- Interpretation and limitations of `(z-zLP)/z`.
+- Active-row counts by constraint family.
+- A prediction about the tightness of the LP bound.
+- The connection to Checkpoint 4.
+
+## Common Reproduction Command
+
+The required final command is:
+
+```bash
+python -m experiments.run_all
+```
+
+The common runner must regenerate Tables 1–3 and include the M1 exports.
+
+The M1 contribution currently provides:
+
+```bash
+python -m experiments.run_m1
+```
+
+The owner of the common runner must connect this to the other roles' computations. The separate M1 command alone does not reproduce all team results.
+
+## Repository Structure — Checkpoint 3 Additions
+
+```text
+checkpoint3_generator_PUBLIC.py
+
+src/
+  model/
+    __init__.py
+    cloud.py
+    triangle.py
+  lp/
+    ... M2 implementation
+  kkt/
+    ... M3 implementation
+  sens/
+    ... M4 implementation
+
+experiments/
+  __init__.py
+  run_m1.py
+  run_all.py                 # complete team integration
+
+tests/
+  test_model.py
+  test_m2.py                # M2 contribution
+  ... M3 and M4 tests
+
+results/
+  m1_matrices.npz
+  m1_rows.csv
+  m1_columns.csv
+  m1_model_sizes.csv
+  h1_binary_points.csv
+  T16_B3_relaxation.lp
+  ... LP, KKT and sensitivity results
+
+docs/
+  M1_report.tex
+  ... other report material
+
+hand/
+  CP3_H1_Model.pdf           # signed final hand page
+  ... other signed hand tasks
+
+README.md
+README_M1.md
+```
+
+This structure lists both M1 files and the required team integration targets. A listed target is not a claim that another member has already completed or uploaded it.
+
+Checkpoint 2 files remain in the repository.
+
+## Submission
+
+Submit one PDF named:
+
+```text
+T16_Checkpoint3.pdf
+```
+
+The PDF must contain:
+
+- Cover with team ID, repository link, tag, final commit hash, roles and declarations.
+- Tables 1–3.
+- Signed S1–S5 sections.
+- Group Synthesis.
+- Signed H1–H5 pages in the appendix.
+- A contribution statement on the last page, signed by all members.
+
+Limits:
+
+- Main text: at most six pages.
+- Each individual analysis section: at most half a page.
+- Synthesis: at most half a page.
+- Each hand task: one page.
+
+Contribution percentages must sum to 100 and agree with the Git history.
+
+Use the existing private repository and retain the instructor's access. Tag the final submission commit `checkpoint3` after the complete team work has been checked.
+
+## Declarations
+
+### Dilnaz Bekturova — M1
+
+ChatGPT/Codex assistance was used to draft:
+
+- `src/model/cloud.py`
+- `src/model/triangle.py`
+- `tests/test_model.py`
+- `experiments/run_m1.py`
+- Task 1, S1 and H1 report material
+- M1 documentation and this Checkpoint 3 README draft
+
+Assistance included translating the prescribed B3 formulation into matrices, implementation drafting, debugging, test preparation and numerical verification.
+
+The M1 model and tests were run successfully, confirming 378 variables, 95 constraint rows and 35 forbidden assignment pairs. The member is responsible for reviewing and understanding the submitted material and completing and signing the required hand work.
+
+### Adil Mutali — M2
 
 AI assistance (Claude) was used to test `src/lp/`, `tests/test_m2.py`, the results CSV files and the drafts of S2 and H2. I reviewed and ran the code; the H2 hand solution is written and signed by me.
+
+### M3 — KKT
+
+[Member to provide an accurate declaration of external code and AI assistance, or state “none”.]
+
+### M4 — Sensitivity
+
+[Member to provide an accurate declaration of external code and AI assistance, or state “none”.]
+
+### Course Materials
+
+The reference model, triangle-task data and conventions come from `Checkpoint_3_Instructions.docx` and `T16_B3_Checkpoint3_packet.docx`, supplied through the course LMS.
+
+`checkpoint3_generator_PUBLIC.py` is the course-supplied generator and is used unchanged.
+
+Unlike Checkpoint 2's from-scratch optimization routines, this assignment permits external LP solvers. The M1 adapter uses PuLP to construct the reference LP.
