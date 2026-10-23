@@ -1,41 +1,56 @@
- # src/sens/interval_check.py
+# src/sens/interval_check.py
 
-def interval_check(df, tolerance=1e-4):
+import os
+import pandas as pd
 
-    z099 = float(
-        df.loc[df["rhs"] == 0.99, "objective"].iloc[0]
-    )
 
-    z100 = float(
-        df.loc[df["rhs"] == 1.00, "objective"].iloc[0]
-    )
+def interval_check(
+    input_file="results/perturbation_runs.csv",
+    output_file="results/interval_check.csv"
+):
+    """
+    Compare the dual price with finite-difference slopes.
 
-    z101 = float(
-        df.loc[df["rhs"] == 1.01, "objective"].iloc[0]
-    )
+    left_slope  = (z(1.00) - z(0.99)) / 0.01
+    right_slope = (z(1.01) - z(1.00)) / 0.01
+    """
 
-    pi = float(
-        df.loc[df["rhs"] == 1.00, "dual_price"].iloc[0]
-    )
+    df = pd.read_csv(input_file)
 
-    left_slope = (z100 - z099) / 0.01
+    z99 = df.loc[df["rhs"] == 0.99, "objective"].iloc[0]
+    z100 = df.loc[df["rhs"] == 1.00, "objective"].iloc[0]
+    z101 = df.loc[df["rhs"] == 1.01, "objective"].iloc[0]
 
+    dual_price = df.loc[
+        df["rhs"] == 1.00,
+        "dual_price"
+    ].iloc[0]
+
+    left_slope = (z100 - z99) / 0.01
     right_slope = (z101 - z100) / 0.01
 
-    left_error = abs(left_slope - pi)
+    result = pd.DataFrame([{
+        "left_slope": left_slope,
+        "dual_price": dual_price,
+        "right_slope": right_slope,
+        "left_minus_dual": left_slope - dual_price,
+        "right_minus_dual": right_slope - dual_price
+    }])
 
-    right_error = abs(right_slope - pi)
+    os.makedirs("results", exist_ok=True)
 
-    basis_valid = (
-        left_error < tolerance
-        and right_error < tolerance
+    result.to_csv(
+        output_file,
+        index=False
     )
 
-    return {
-        "dual_price": pi,
-        "left_slope": left_slope,
-        "right_slope": right_slope,
-        "left_error": left_error,
-        "right_error": right_error,
-        "basis_valid": basis_valid
-    }
+    print("\nInterval Check Results")
+    print(result)
+
+    print(f"\nSaved: {output_file}")
+
+    return result
+
+
+if __name__ == "__main__":
+    interval_check()
