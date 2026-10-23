@@ -252,7 +252,7 @@ Checkpoint 3 uses the existing repository from Checkpoint 2. Previous checkpoint
 | M1 — Model | Dilnaz Bekturova | `src/model/`: data, reference model, matrices and row/column bookkeeping | S1 — The model and what it ignores | H1 |
 | M2 — LP | Adil Mutali | `src/lp/`: solving the LP and reading its solution | S2 — Value and fractionality of the LP | H2 |
 | M3 — KKT | Miras Asem | `src/kkt/`: independent checker of five optimality conditions | S3 — Is the solution optimal, and how do we know? | H3 |
-| M4 — Sensitivity | [Confirm member] | `src/sens/`: RHS perturbations and slope interval check | S4 — What the dual price says about the storyline | H4 |
+| M4 — Sensitivity | Alina Suleimenova | `src/sens/`: RHS perturbations and slope interval check | S4 — What the dual price says about the storyline | H4 |
 | Group | All four members | Task 5, common runner, tables, report and contribution statement | S5 and Synthesis | H5 |
 
 The remaining team members are Alina Suleimenova and Miras Asem. Their M3/M4 assignments must be confirmed against the team's agreed roles.
