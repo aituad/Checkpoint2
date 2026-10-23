@@ -252,7 +252,7 @@ Checkpoint 3 uses the existing repository from Checkpoint 2. Previous checkpoint
 | M1 — Model | Dilnaz Bekturova | `src/model/`: data, reference model, matrices and row/column bookkeeping | S1 — The model and what it ignores | H1 |
 | M2 — LP | Adil Mutali | `src/lp/`: solving the LP and reading its solution | S2 — Value and fractionality of the LP | H2 |
 | M3 — KKT | Miras Asem | `src/kkt/`: independent checker of five optimality conditions | S3 — Is the solution optimal, and how do we know? | H3 |
-| M4 — Sensitivity | [Confirm member] | `src/sens/`: RHS perturbations and slope interval check | S4 — What the dual price says about the storyline | H4 |
+| M4 — Sensitivity | Alina Suleimenova | `src/sens/`: RHS perturbations and slope interval check | S4 — What the dual price says about the storyline | H4 |
 | Group | All four members | Task 5, common runner, tables, report and contribution statement | S5 and Synthesis | H5 |
 
 The remaining team members are Alina Suleimenova and Miras Asem. Their M3/M4 assignments must be confirmed against the team's agreed roles.
@@ -745,7 +745,7 @@ The M1 model and tests were run successfully, confirming 378 variables, 95 const
 
 ### Adil Mutali — M2
 
-AI assistance (Claude) was used to test `src/lp/`, `tests/test_m2.py`, the results CSV files and the drafts of S2 and H2. I reviewed and ran the code; the H2 hand solution is written and signed by me.
+AI assistance (Claude) was used to assist with the code in `src/lp/`, testing and validation of `tests/test_m2.py`, generation and verification of the results CSV and NPZ files, and drafting and reviewing the S2 text and H2 solution. I reviewed and ran the code and checked the numerical results. The H2 hand solution was handwritten and signed by me.
 
 ### M3 — KKT
 
@@ -761,9 +761,8 @@ AI assistance (Gemini) was used to draft:
 - `Task 3, S3 and H3 report material`
 - Assistance included mathematical verification of the KKT conditions, writing the validation logic for all five LP optimality conditions, matrix integration, and debugging. I reviewed and ran the code, confirming all KKT violations are below the 1e-6 tolerance; the H3 hand solution is written and signed by me.
 
-### M4 — Sensitivity
-
-[Member to provide an accurate declaration of external code and AI assistance, or state “none”.]
+### Alina Suleimenova - M4 
+This project was completed with the assistance of Artificial Intelligence (AI) tools. It was used for reviewing linear programming, sensitivity analysis concepts and drafting the code in src/sens/perturbation_run.py, interval_check.py and run_m4.py       
 
 ### Course Materials
 
