@@ -745,7 +745,7 @@ The M1 model and tests were run successfully, confirming 378 variables, 95 const
 
 ### Adil Mutali — M2
 
-AI assistance (Claude) was used to test `src/lp/`, `tests/test_m2.py`, the results CSV files and the drafts of S2 and H2. I reviewed and ran the code; the H2 hand solution is written and signed by me.
+AI assistance (Claude) was used to assist with the code in `src/lp/`, testing and validation of `tests/test_m2.py`, generation and verification of the results CSV and NPZ files, and drafting and reviewing the S2 text and H2 solution. I reviewed and ran the code and checked the numerical results. The H2 hand solution was handwritten and signed by me.
 
 ### M3 — KKT
 
