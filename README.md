@@ -761,9 +761,8 @@ AI assistance (Gemini) was used to draft:
 - `Task 3, S3 and H3 report material`
 - Assistance included mathematical verification of the KKT conditions, writing the validation logic for all five LP optimality conditions, matrix integration, and debugging. I reviewed and ran the code, confirming all KKT violations are below the 1e-6 tolerance; the H3 hand solution is written and signed by me.
 
-### M4 — Sensitivity
-
-[Member to provide an accurate declaration of external code and AI assistance, or state “none”.]
+### Alina Suleimenova - M4 
+This project was completed with the assistance of Artificial Intelligence (AI) tools. It was used for reviewing linear programming, sensitivity analysis concepts and drafting the code in src/sens/perturbation_run.py, interval_check.py and run_m4.py   
 
 ### Course Materials
 
