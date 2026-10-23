@@ -5,7 +5,7 @@ n_constraint_rows,95
 n_fixed_to_zero,35
 z_LP,7.328502
 solver,scipy.optimize.linprog(method='highs')
-seconds,0.0034
+seconds,0.0079
 n_fractional_y,18
 n_split_vms,8
 max_servers_per_vm,3
