@@ -251,7 +251,7 @@ Checkpoint 3 uses the existing repository from Checkpoint 2. Previous checkpoint
 |---|---|---|---|---|
 | M1 — Model | Dilnaz Bekturova | `src/model/`: data, reference model, matrices and row/column bookkeeping | S1 — The model and what it ignores | H1 |
 | M2 — LP | Adil Mutali | `src/lp/`: solving the LP and reading its solution | S2 — Value and fractionality of the LP | H2 |
-| M3 — KKT | [Confirm member] | `src/kkt/`: independent checker of five optimality conditions | S3 — Is the solution optimal, and how do we know? | H3 |
+| M3 — KKT | Miras Asem | `src/kkt/`: independent checker of five optimality conditions | S3 — Is the solution optimal, and how do we know? | H3 |
 | M4 — Sensitivity | [Confirm member] | `src/sens/`: RHS perturbations and slope interval check | S4 — What the dual price says about the storyline | H4 |
 | Group | All four members | Task 5, common runner, tables, report and contribution statement | S5 and Synthesis | H5 |
 
@@ -749,7 +749,17 @@ AI assistance (Claude) was used to test `src/lp/`, `tests/test_m2.py`, the resul
 
 ### M3 — KKT
 
-[Member to provide an accurate declaration of external code and AI assistance, or state “none”.]
+Miras Asem — M3
+AI assistance (Gemini) was used to draft:
+
+- `src/kkt/checker.py`
+
+- `tests/test_m3.py`
+
+- `experiments/run_m3.py`
+
+- `Task 3, S3 and H3 report material`
+- Assistance included mathematical verification of the KKT conditions, writing the validation logic for all five LP optimality conditions, matrix integration, and debugging. I reviewed and ran the code, confirming all KKT violations are below the 1e-6 tolerance; the H3 hand solution is written and signed by me.
 
 ### M4 — Sensitivity
 
