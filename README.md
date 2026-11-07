@@ -771,3 +771,44 @@ The reference model, triangle-task data and conventions come from `Checkpoint_3_
 `checkpoint3_generator_PUBLIC.py` is the course-supplied generator and is used unchanged.
 
 Unlike Checkpoint 2's from-scratch optimization routines, this assignment permits external LP solvers. The M1 adapter uses PuLP to construct the reference LP.
+## Checkpoint 4 — SA-I (Adil Mutali), SA with transfer, team T16
+
+| Item | Value |
+|---|---|
+| Instance | `cp34_instance(16, 'B', 3)` (S = 9, M = 41; `python3 check_env.py --instance-seed 16 --story B --variant 3` prints the check values) |
+| Pair / configuration | SA pair, "SA, transfer": Suleimenova Alina = SA-T (Nelder–Mead, tuning, random-search baseline), Mutali Adil = SA-I |
+| SA-I files | `src/meta/sa.py` (SA, `solve`), `src/meta/sa_checks.py` (improving-move check of Table 2), `tests/test_sa_i.py`, `experiments/sa_i_report.py`, `results/Mutali_runs.csv` (+ `Mutali_table1.csv`, `Mutali_table2.csv`, `Mutali_numbers.json`), `figures/F1_Mutali.png`, `figures/F2_Mutali_acceptance.png` |
+| Shared with the pair | `src/meta/interface.py`, `experiments/run_final.py`, `check_env.py` (starter kit, unchanged); argument `params={"T0":..., "Tend":...}` of `solve` (agreed with SA-T) |
+
+### The method (src/meta/sa.py)
+
+* **State:** `assign[k]` = server of VM k. **Moves:** transfer only (a VM goes to another server it may use: in B3 a `needs_gpu` VM only to a GPU server). No swap, no other move, no variant move.
+* **Cost:** sum over servers of `latency_B(min(cpu/cap, 1))`, updated incrementally (a transfer changes two servers): `delta = lat(new_s) + lat(new_t) - lat(old_s) - lat(old_t)`.
+* **Constraint handling:** a candidate that overloads the receiving server in CPU or memory is rejected; it still counts as one evaluation. Only if the start is infeasible (very tight instance or an infeasible `start`), the run uses `f = cost + 20 * relative overload` until the end and returns the best feasible solution; if none is found the result has `feasible = False`.
+* **Start:** greedy (most restricted VMs first, then large CPU first, each to the allowed server with the lowest CPU utilisation after placement that fits CPU and memory).
+* **Schedule:** geometric `T_k = T0 * alpha^k`, `alpha = (Tend/T0)^(1/K)`, `K` = number of annealing proposals. Without `params`, the rule of the lecture: a random walk of 3000 proposals that accepts every proposal that fits; `delta_bar` = median and `delta_min` = 5th percentile of the positive changes; `T0 = 4.5 * delta_bar`, `Tend = 0.22 * delta_min` (for budgets below 15 000 the walk has `(budget-1)/5` proposals). With both `T0` and `Tend` in `params` there is no walk.
+* **Budget:** one evaluation = one candidate. Start (1) + walk (3000, only without `params`) + annealing proposals (the rest) = `budget` exactly. Rejected candidates are counted.
+* **Randomness:** only `random.Random(seed)`. `solve` never reads `z_ref` or `z_LP` and has no instance data in it.
+* **Result:** the best feasible state visited (not the last state). `trace` has a point at evaluation 1, at every multiple of 1000 and at the end. Extra entry `stats` (temperatures, acceptance counts, number of rejected candidates) is used by the report; the interface entries are as specified.
+* **Table 2 definitions:** "proposals" are the annealing proposals (the walk is excluded); a *worsening proposal* is a proposal that fits and has `delta > 0`; rejected (overloading) candidates are not in the denominator. First/last 5 % = first/last `ceil(0.05 K)` annealing proposals. Improving moves are counted by `src/meta/sa_checks.py` with the checker of the generator, all transfers and all swaps, strict improvement by more than 1e-12.
+
+### Commands (run from the repository root; Python 3, numpy, matplotlib, pytest)
+
+```bash
+python3 check_env.py --instance-seed 16 --story B --variant 3          # check values
+python3 -m pytest tests/test_sa_i.py -v                                # role test (34 tests)
+python3 experiments/run_final.py --module src.meta.sa --instance-seed 16 --story B --variant 3 \
+    --team T16 --role SA-I --configuration "SA, transfer" --out results/Mutali_runs.csv     # 10 final runs, rule-based T0/Tend
+python3 experiments/sa_i_report.py                                     # Table 1, Table 2, F1, F2 (re-runs the seeds and checks them against the CSV)
+python3 experiments/sa_i_report.py --baseline results/<tuner>_tuning.csv   # same, with the random-search rows of SA-T (question 6)
+```
+
+Seconds in the CSV depend on the machine (the file was produced on a Linux VM); costs do not. The Table 1 / Table 2 / F1 / F2 files are written by `sa_i_report.py` from `results/Mutali_runs.csv`; the baseline numbers come from SA-T's file.
+
+### Declaration — Adil Mutali
+
+| Tool or source | Used for | Files or sections | What I checked myself |
+|---|---|---|---|
+| Claude (AI assistant, Anthropic) | drafting the code of SA (state, incremental cost, schedule, rule-based T0/Tend), the improving-move check, the role test, the report script, this README section and the first draft of the report text | `src/meta/sa.py`, `src/meta/sa_checks.py`, `tests/test_sa_i.py`, `experiments/sa_i_report.py`, this section, report (prediction, Sections 3–6) | I read `sa.py` line by line and can explain every step; I ran `pytest tests/test_sa_i.py` on my machine (34 passed) and `experiments/sa_i_report.py`, which re-runs the 10 final seeds: the costs equal `results/Mutali_runs.csv` and the numbers of Table 1 and Table 2 (seed 6) are reproduced |
+| numpy, matplotlib, Python standard library | arrays, percentile/median, figures, random numbers | all | versions as installed in my `.venv` |
+| Starter kit and `checkpoint4_generator_PUBLIC.py` | interface, runner, checker | `src/meta/interface.py`, `experiments/run_final.py`, `check_env.py` | unchanged copies |
