@@ -1,0 +1,8 @@
+statistic,cost,gap_ref_percent,gap_LP_percent
+best,7.345083,0.0000,0.2257
+median,7.349579,0.0612,0.2868
+mean,7.352521,0.1013,0.3267
+worst,7.369338,0.3302,0.5541
+std (n-1),0.008875,,
+feasible runs,10/10,,
+mean time per run (s),0.24,,

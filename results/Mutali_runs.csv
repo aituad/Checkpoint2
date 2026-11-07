@@ -1,0 +1,11 @@
+team,role,configuration,seed,budget,cost,evals,feasible,seconds,params
+T16,SA-I,"SA, transfer",0,100000,7.362085198,100000,True,0.28,
+T16,SA-I,"SA, transfer",1,100000,7.345082573,100000,True,0.23,
+T16,SA-I,"SA, transfer",2,100000,7.354619880,100000,True,0.23,
+T16,SA-I,"SA, transfer",3,100000,7.345082573,100000,True,0.24,
+T16,SA-I,"SA, transfer",4,100000,7.345082573,100000,True,0.26,
+T16,SA-I,"SA, transfer",5,100000,7.345082573,100000,True,0.24,
+T16,SA-I,"SA, transfer",6,100000,7.369338480,100000,True,0.23,
+T16,SA-I,"SA, transfer",7,100000,7.359672886,100000,True,0.24,
+T16,SA-I,"SA, transfer",8,100000,7.354076303,100000,True,0.23,
+T16,SA-I,"SA, transfer",9,100000,7.345082573,100000,True,0.22,

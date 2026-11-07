@@ -1,0 +1,5 @@
+Written 2026-11-07 before the final runs on seeds 0-9 (only dev runs on seeds 100-104 existed).
+SA-I prediction, SA transfer, B3, seed 16:
+- Fill ratio: CPU 201/420 = 0.48, memory 706/1339 = 0.53 -> a transfer fits on most servers; I expect 10/10 feasible.
+- Mean gap_ref between 0.00 % and 0.15 %; worst run below 0.3 %.
+- Limits: neighbourhood (transfer only, equal-load exchanges are impossible without swap) and the temperature range, not the budget.

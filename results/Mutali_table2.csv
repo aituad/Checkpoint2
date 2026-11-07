@@ -1,0 +1,18 @@
+quantity,value
+worst_seed,6
+final_cost,7.369338
+improving_transfers,7
+improving_swaps,7
+best_transfer_delta,-0.019117
+best_swap_delta,-0.019117
+accepted_worsening_first5pct,1516/2194 = 0.6910
+accepted_worsening_last5pct,27/4107 = 0.0066
+T0,2.01850
+Tend,0.003586
+annealing_proposals_K,96999
+calibration_walk,3000
+best_found_at_eval,62232
+T_when_best_found,0.04222
+cost_of_current_state_at_end,7.404432
+end_state_improving_transfers,3
+end_state_improving_swaps,27
