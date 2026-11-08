@@ -926,4 +926,77 @@ This test file verifies the correctness of the Simulated Annealing implementatio
 python tests/test_sa_t.py
 
 
+## Checkpoint 4 — GA Pair
+
+**Team:** T16, B3, seed 16  
+**Configuration:** GA, penalty
+
+| Member | Role | Responsibility |
+|---|---|---|
+| Dilnaz Bekturova | GA-P | Problem representation, evaluation, crossover, mutation, tests and penalty experiment |
+| Miras Asem | GA-A | GA loop, final runs and random-search baseline |
+
+### Environment and checks
+
+Python 3 with NumPy and Matplotlib.
+
+```bash
+python -m pip install numpy matplotlib
+python check_env.py --instance-seed 16 --story B --variant 3
+python -m unittest discover -s tests -p "test_ga_p.py" -v
+```
+
+### GA-P interface and penalty
+
+`src/meta/ga_problem.py` provides:
+
+- `random_individual(d, rng)` → assignment array.
+- `evaluate(d, individual, rho)` → fitness, cost, feasible and violation in a dictionary.
+- `crossover(d, parent1, parent2, rng)` → one child.
+- `mutate(d, individual, rng)` → a new assignment with 1–2 changes where alternatives exist.
+
+Operators preserve GPU compatibility. CPU and memory overloads are
+allowed and penalized; no capacity repair is used.
+
+```text
+V = sum of normalized CPU overloads
+  + sum of normalized memory overloads
+  + number of GPU-incompatible assignments
+
+fitness = checker-compatible cost + rho * V
+```
+
+### Penalty experiment
+
+```bash
+python -m experiments.run_bekturova_exp
+```
+
+Three penalties (1, 10, 100), seeds 100–104, budget 100000.
+Other parameters: N=30, pc=0.9, tournament_size=2.
+
+Results:
+- `results/bekturova_exp.csv`
+- `results/bekturova_penalty_summary.csv`
+
+Rho=10 was selected by the lowest mean feasible cost on tuning seeds.
+Final seeds 0–9 must use the fixed selected parameters.
+
+### Final runs and baseline
+
+Miras Asem provides the final GA results, random-search results,
+traces and exact commands reproducing the final tables and figures.
+Add those commands and file paths here when available.
+
+### Declarations — Dilnaz Bekturova
+
+| Tool/source | Used for | Files/sections | Personally checked |
+|---|---|---|---|
+| ChatGPT/Codex | Drafting operators, tests and experiment runner; assistance with analysis and text | `ga_problem.py`, `test_ga_p.py`, `run_bekturova_exp.py`, prediction and README | Ran five tests and all 15 tuning experiments |
+| Course materials | Generator, official checker and environment check | `checkpoint4_generator_PUBLIC.py`, `check_env.py` | Confirmed instance check values |
+| Miras Asem, GA-A partner | Shared GA loop | `src/meta/ga.py` | Ran the integrated penalty experiment with checker and budget validation |
+
+Each partner records their own declarations.
+Reports are submitted individually; the final repository tag is `checkpoint4`.
+
 
