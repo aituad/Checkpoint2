@@ -1,0 +1,4 @@
+Configuration,Parameters,AverageCost
+Rule-Based,Default calibration,7.348771526861821
+Tuned,"T0=10.0; Tend=0.05",7.423574065928922
+Winner,Rule-Based,
