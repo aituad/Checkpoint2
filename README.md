@@ -816,7 +816,9 @@ Seconds in the CSV depend on the machine (the file was produced on a Linux VM); 
 
 
 
-## Alina Suleimenova, configuration: SA, transfer. Role: SA-T, team T16
+
+
+# Alina Suleimenova, configuration: SA, transfer. Role: SA-T, team T16
 
 ### create_baseline.py
 This script generates the random-search baseline required for Checkpoint 4.
