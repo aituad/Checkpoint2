@@ -159,6 +159,17 @@ def main():
                 vals.append(float(np.interp(-np.log10(T_target), x, y)))
         acc_at[str(T_target)] = float(np.mean(vals)) if vals else None
 
+    # ---- the other parameter sets in the same file (SA-I runs both: rule-based and the tuned set of SA-T), seeds 0-9
+    alt = {}
+    for r in read_runs(a.runs, role='SA-I'):
+        if (r['params'] or '') != a.params_filter and r['feasible'] == 'True':
+            alt.setdefault(r['params'], []).append(float(r['cost']))
+    alt_summary = {}
+    for k_, v_ in alt.items():
+        sm_ = summary(v_)
+        alt_summary[k_] = {'n': len(v_), 'mean': sm_['mean'], 'worst': sm_['worst'], 'best': sm_['best'],
+                           'gap_ref_mean': gap_ref(sm_['mean']), 'gap_ref_worst': gap_ref(sm_['worst'])}
+
     # ---- numbers for the explanation of the worst seed
     from src.meta.sa import allowed_servers
     allowed = allowed_servers(d)
@@ -205,7 +216,7 @@ def main():
                'mean_best_so_far_at_90pct': at90, 'mean_best_so_far_final': float(final_mean),
                'infeasible_proposals_share': {s: res['stats']['infeasible_proposals'] / res['stats']['K'] for s, res in feas},
                'start_cost_mean': float(np.mean([res['trace'][0][1] for s, res in feas])),
-               'acceptance_at_T': acc_at, 'p_improving_transfer_per_proposal': p_improve,
+               'other_parameter_sets': alt_summary, 'acceptance_at_T': acc_at, 'p_improving_transfer_per_proposal': p_improve,
                'p_leave_per_proposal_near_best': p_leave, 'best_seed': bs_, 'best_seed_loads_cpu': best_loads,
                'first_improvement_by_seed': first_improve,
                'n_transfer_candidates': sum(len(a_) - 1 for a_ in allowed), 'baseline': base}
