@@ -876,7 +876,7 @@ Purpose
 
 Used for parameter tuning and comparison against the rule-based configuration.
 
-## random_baseline.csv
+## Suleimenova_random_baseline.csv
 
 This file contains the random-search baseline results used in the CP4 analysis.
 
@@ -895,7 +895,8 @@ Role: SA-T
 
 Provides a baseline for comparison with the Simulated Annealing implementation.
 
-### Tuning Result
+### Suleimenova_table_tunning.csv
+Tuning Result
 
 The following configurations were compared on seeds 100-104:
 
@@ -1048,7 +1049,7 @@ python experiments/plot_graphs_ga.py
 Each partner records their own declarations.
 Reports are submitted individually; the final repository tag is `checkpoint4`.
 
-### Declaration - Alina Suleimenova 
+### Declarations - Alina Suleimenova 
 
 | Tool/Source | Used For | Files/Sections | Personally Checked |
 |---|---|---|---|
