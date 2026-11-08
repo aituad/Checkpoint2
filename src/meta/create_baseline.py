@@ -3,17 +3,16 @@ import os
 import csv
 import time
 
-# Путь к корню проекта
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 sys.path.insert(0, ROOT)
 
 import checkpoint4_generator_PUBLIC as gen
 from src.meta.random_search import solve
 
-# Экземпляр задачи для команды T16, Story B, Variant 3
 d = gen.cp34_instance(16, 'B', 3)
 
-# Файл результатов
+
 results_file = os.path.join(ROOT, "results", "random_baseline.csv")
 
 with open(results_file, "w", newline="") as f:
