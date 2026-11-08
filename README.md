@@ -896,7 +896,7 @@ Role: SA-T
 Provides a baseline for comparison with the Simulated Annealing implementation.
 
 ### Suleimenova_table_tunning.csv
-Tuning Result
+### Tuning Result
 
 The following configurations were compared on seeds 100-104:
 
