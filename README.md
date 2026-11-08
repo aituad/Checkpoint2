@@ -814,6 +814,7 @@ After the final runs only diagnostic entries of `stats` were added to `solve` (t
 | Claude (AI assistant, Anthropic) | Drafting the SA implementation (state, incremental cost, schedule, rule-based T0/Tend), the improving-move check, and the role test; assistance with analysis and text. | `src/meta/sa.py`, `src/meta/sa_checks.py`, `tests/test_sa_i.py`, report (prediction, Sections 3–6) | I reviewed the drafts, corrected errors, and rewrote the report text as needed. I ran `pytest tests/test_sa_i.py` (34 passed) and checked the report numbers against the result files. |
 | numpy, matplotlib, Python standard library | arrays, percentile/median, figures, random numbers | all | versions as installed in my `.venv` |
 | Starter kit and `checkpoint4_generator_PUBLIC.py` | interface, runner, checker | `src/meta/interface.py`, `experiments/run_final.py`, `check_env.py` | unchanged copies |  
+| Suleimenova Alina (SA-T partner) | random-search baseline and tuning results (data only, no code used) | `results/Suleimenova_random_baseline.csv`, `results/Suleimenova_table_tunning.csv` | I used the baseline for Table 1 and question 6, and checked the tuning numbers (7.3488 rule-based, 7.4236 tuned) by running `tunning_rule.py` and `tunning_params` |
 
 
 
