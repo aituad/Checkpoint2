@@ -1048,4 +1048,11 @@ python experiments/plot_graphs_ga.py
 Each partner records their own declarations.
 Reports are submitted individually; the final repository tag is `checkpoint4`.
 
+### Alina Suleimenova 
+Tool / Source Used	Purpose	Files / Sections	Personally Checked
+ChatGPT	Assistance with baseline generation, parameter tuning, test creation, README preparation, and report drafting	create_baseline.py, tuning_rule.py, tuning_params.py, test_sa_t.py, README, report text	Executed all experiments, verified outputs, checked averages manually
+Course Materials	Instance generator, official checker, and project instructions	checkpoint4_generator_PUBLIC.py, check_env.py, CP4 Guide	Confirmed generated instances and verified solution feasibility
+Adil Mutali (SA-I partner)	Simulated Annealing implementation	src/meta/sa.py	Used the provided implementation and validated tuning results with multiple runs
+Own Experimental Work	Random baseline generation and parameter evaluation	results/random_baseline.csv, tuning experiments (seeds 100–104)	Executed baseline runs, measured performance, compared rule-based and tuned configurations
+
 
