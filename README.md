@@ -990,6 +990,45 @@ Miras Asem provides the final GA results, random-search results,
 traces and exact commands reproducing the final tables and figures.
 Add those commands and file paths here when available.
 
+### Final Runs and Baseline (GA-A)
+
+Miras Asem provides the final GA results, Random Search results, traces, worst-seed analysis, and exact reproduction commands.
+
+### Exact Reproduction Commands
+
+#### 1. Run Final GA (Seeds 0–9, Budget 100,000, ρ = 10)
+
+```bash
+python experiments/run_final.py --module src.meta.ga --instance-seed 16 --story B --variant 3 --team T16 --role GA-A --configuration "GA, penalty" --seeds 0-9 --budget 100000 --params '{"N": 30, "pc": 0.9, "tournament_size": 2, "rho": 10.0}' --out results/Asem_runs.csv
+```
+
+#### 2. Run Random Search Baseline (Seeds 0–9, Budget 100,000)
+
+```bash
+python experiments/run_final.py --module src.meta.random_search --instance-seed 16 --story B --variant 3 --team T16 --role GA-A --configuration "random" --seeds 0-9 --budget 100000 --out results/Asem_runs.csv --append
+```
+
+#### 3. Export Traces and Assignments (JSON for Partner and Plots)
+
+```bash
+python experiments/export_json.py
+python experiments/export_rs_json.py
+```
+
+#### 4. Analyze Worst Seed (Table 2 Data)
+
+```bash
+python experiments/analyze_worst_seed.py
+```
+
+#### 5. Generate Figures (Figure F1 and Diversity Plot)
+
+```bash
+python experiments/plot_graphs_ga.py
+```
+
+---
+
 ### Declarations — Dilnaz Bekturova
 
 | Tool/source | Used for | Files/sections | Personally checked |
@@ -997,6 +1036,14 @@ Add those commands and file paths here when available.
 | ChatGPT/Codex | Drafting operators, tests and experiment runner; assistance with analysis and text | `ga_problem.py`, `test_ga_p.py`, `run_bekturova_exp.py`, prediction and README | Ran five tests and all 15 tuning experiments |
 | Course materials | Generator, official checker and environment check | `checkpoint4_generator_PUBLIC.py`, `check_env.py` | Confirmed instance check values |
 | Miras Asem, GA-A partner | Shared GA loop | `src/meta/ga.py` | Ran the integrated penalty experiment with checker and budget validation |
+
+### Declarations — Miras Asem
+
+| Tool/Source | Used For | Files/Sections | Personally Checked |
+|---|---|---|---|
+| Gemini | Drafting the main GA loop, Random Search baseline, plotting, and analysis scripts | `src/meta/ga.py`, `src/meta/random_search.py`, `experiments/` scripts | Verified exact budget consumption (100k evaluations), official checker agreement, and CSV output |
+| Course materials | Starter kit, interface definition, and checker validation | `checkpoint4_generator_PUBLIC.py`, `run_final.py` | Validated all 10 final runs against official checker criteria |
+| Dilnaz Bekturova, GA-P partner | Problem operators and tuning experiments | `src/meta/ga_problem.py`, `results/bekturova_exp.csv` | Tested integration of crossover/mutation and evaluated penalty selection |
 
 Each partner records their own declarations.
 Reports are submitted individually; the final repository tag is `checkpoint4`.
