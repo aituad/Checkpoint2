@@ -915,7 +915,15 @@ Average cost:
 
 7.4236
 
-Rule-based configuration performed better than the tuned configuration.
+Rule-based configuration performed better than the tuned configuration.   
+
+## Test File: test_sa_t.py
+tests/test_sa_t.py
+
+This test file verifies the correctness of the Simulated Annealing implementation for the SA-T role.
+
+### How to Run
+python tests/test_sa_t.py
 
 
 
