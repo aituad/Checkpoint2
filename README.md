@@ -818,9 +818,9 @@ Seconds in the CSV depend on the machine (the file was produced on a Linux VM); 
 
 
 
-# Alina Suleimenova, configuration: SA, transfer. Role: SA-T, team T16
+### Alina Suleimenova, configuration: SA, transfer. Role: SA-T, team T16
 
-### create_baseline.py
+## create_baseline.py
 This script generates the random-search baseline required for Checkpoint 4.
 
 Functionality
@@ -835,7 +835,7 @@ Output columns
 team, role, configuration, seed, budget,
 cost, evals, feasible, seconds, params
 
-### tuning_rule.py
+## tuning_rule.py
 
 This script evaluates the default rule-based temperature selection implemented in sa.py.
 
