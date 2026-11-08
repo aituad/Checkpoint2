@@ -853,7 +853,7 @@ Purpose
 
 Used to compare the default rule-based temperature schedule with manually tuned parameters.
 
-### tuning_params.py
+## tuning_params.py
 
 This script evaluates manually tuned Simulated Annealing parameters.
 
@@ -863,7 +863,7 @@ params = {
     "Tend": 0.05
 }
 
-## Functionality
+### Functionality
 Creates the Team T16 instance.
 Runs Simulated Annealing for seeds:
 100, 101, 102, 103, 104
@@ -874,7 +874,7 @@ Purpose
 
 Used for parameter tuning and comparison against the rule-based configuration.
 
-### random_baseline.csv
+## random_baseline.csv
 
 This file contains the random-search baseline results used in the CP4 analysis.
 
@@ -889,15 +889,15 @@ Variant: 3
 Team: T16
 Role: SA-T
 
-## Purpose
+### Purpose
 
 Provides a baseline for comparison with the Simulated Annealing implementation.
 
-## Tuning Result
+### Tuning Result
 
 The following configurations were compared on seeds 100-104:
 
-## Rule-based
+### Rule-based
 
 Average cost:
 
