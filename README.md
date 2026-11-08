@@ -799,17 +799,19 @@ python3 check_env.py --instance-seed 16 --story B --variant 3          # check v
 python3 -m pytest tests/test_sa_i.py -v                                # role test (34 tests)
 python3 experiments/run_final.py --module src.meta.sa --instance-seed 16 --story B --variant 3 \
     --team T16 --role SA-I --configuration "SA, transfer" --out results/Mutali_runs.csv     # 10 final runs, rule-based T0/Tend
+python3 experiments/run_final.py --module src.meta.sa --instance-seed 16 --story B --variant 3 \
+    --team T16 --role SA-I --configuration "SA, transfer" --params '{"T0": 10.0, "Tend": 0.05}' --seeds 0-9 --append --out results/Mutali_runs.csv   # the tuned set of SA-T on seeds 0-9 (rule-based was better on seeds 100-104, so Table 1 uses the rule-based rows)
 python3 experiments/sa_i_report.py                                     # Table 1, Table 2, F1, F2 (re-runs the seeds and checks them against the CSV)
-python3 experiments/sa_i_report.py --baseline results/<tuner>_tuning.csv   # same, with the random-search rows of SA-T (question 6)
+python3 experiments/sa_i_report.py --baseline results/random_baseline.csv   # same, with the random-search baseline (file random_baseline.csv, owner Suleimenova / SA-T) for Table 1 and question 6
 ```
 
-Seconds in the CSV depend on the machine (the file was produced on a Linux VM); costs do not. The Table 1 / Table 2 / F1 / F2 files are written by `sa_i_report.py` from `results/Mutali_runs.csv`; the baseline numbers come from SA-T's file.
+After the final runs only diagnostic entries of `stats` were added to `solve` (time of the best state, final state); the 10 costs were re-checked equal by `sa_i_report.py`. Seconds in the CSV depend on the machine (the file was produced on a Linux VM); costs do not. The Table 1 / Table 2 / F1 / F2 files are written by `sa_i_report.py` from `results/Mutali_runs.csv`; the baseline numbers come from SA-T's file.
 
 ### Declaration — Adil Mutali
 
 | Tool or source | Used for | Files or sections | What I checked myself |
 |---|---|---|---|
-| Claude (AI assistant, Anthropic) | drafting the code of SA (state, incremental cost, schedule, rule-based T0/Tend), the improving-move check, the role test, the report script, this README section and the first draft of the report text | `src/meta/sa.py`, `src/meta/sa_checks.py`, `tests/test_sa_i.py`, `experiments/sa_i_report.py`, this section, report (prediction, Sections 3–6) | I read `sa.py` line by line and can explain every step; I ran `pytest tests/test_sa_i.py` on my machine (34 passed) and `experiments/sa_i_report.py`, which re-runs the 10 final seeds: the costs equal `results/Mutali_runs.csv` and the numbers of Table 1 and Table 2 (seed 6) are reproduced |
+| Claude (AI assistant, Anthropic) | AI generated initial drafts of the SA implementation (state, incremental cost, schedule, rule-based T0/Tend), the improving-move check, the role test, and the report text. I reviewed the drafts, corrected errors, and rewrote the material as needed. | `src/meta/sa.py`, `src/meta/sa_checks.py`, `tests/test_sa_i.py`, `experiments/sa_i_report.py`, this section, report (prediction, Sections 3–6) | I read `sa.py` line by line and can explain every step; I ran `pytest tests/test_sa_i.py` on my machine (34 passed) and `experiments/sa_i_report.py`, which re-runs the 10 final seeds: the costs equal `results/Mutali_runs.csv` and the numbers of Table 1 and Table 2 (seed 6) are reproduced; I rewrote the text of the report in my own words (first drafted by Claude) and checked its numbers against the result files |
 | numpy, matplotlib, Python standard library | arrays, percentile/median, figures, random numbers | all | versions as installed in my `.venv` |
 | Starter kit and `checkpoint4_generator_PUBLIC.py` | interface, runner, checker | `src/meta/interface.py`, `experiments/run_final.py`, `check_env.py` | unchanged copies |  
 
@@ -925,5 +927,78 @@ This test file verifies the correctness of the Simulated Annealing implementatio
 ### How to Run
 python tests/test_sa_t.py
 
+
+## Checkpoint 4 — GA Pair
+
+**Team:** T16, B3, seed 16  
+**Configuration:** GA, penalty
+
+| Member | Role | Responsibility |
+|---|---|---|
+| Dilnaz Bekturova | GA-P | Problem representation, evaluation, crossover, mutation, tests and penalty experiment |
+| Miras Asem | GA-A | GA loop, final runs and random-search baseline |
+
+### Environment and checks
+
+Python 3 with NumPy and Matplotlib.
+
+```bash
+python -m pip install numpy matplotlib
+python check_env.py --instance-seed 16 --story B --variant 3
+python -m unittest discover -s tests -p "test_ga_p.py" -v
+```
+
+### GA-P interface and penalty
+
+`src/meta/ga_problem.py` provides:
+
+- `random_individual(d, rng)` → assignment array.
+- `evaluate(d, individual, rho)` → fitness, cost, feasible and violation in a dictionary.
+- `crossover(d, parent1, parent2, rng)` → one child.
+- `mutate(d, individual, rng)` → a new assignment with 1–2 changes where alternatives exist.
+
+Operators preserve GPU compatibility. CPU and memory overloads are
+allowed and penalized; no capacity repair is used.
+
+```text
+V = sum of normalized CPU overloads
+  + sum of normalized memory overloads
+  + number of GPU-incompatible assignments
+
+fitness = checker-compatible cost + rho * V
+```
+
+### Penalty experiment
+
+```bash
+python -m experiments.run_bekturova_exp
+```
+
+Three penalties (1, 10, 100), seeds 100–104, budget 100000.
+Other parameters: N=30, pc=0.9, tournament_size=2.
+
+Results:
+- `results/bekturova_exp.csv`
+- `results/bekturova_penalty_summary.csv`
+
+Rho=10 was selected by the lowest mean feasible cost on tuning seeds.
+Final seeds 0–9 must use the fixed selected parameters.
+
+### Final runs and baseline
+
+Miras Asem provides the final GA results, random-search results,
+traces and exact commands reproducing the final tables and figures.
+Add those commands and file paths here when available.
+
+### Declarations — Dilnaz Bekturova
+
+| Tool/source | Used for | Files/sections | Personally checked |
+|---|---|---|---|
+| ChatGPT/Codex | Drafting operators, tests and experiment runner; assistance with analysis and text | `ga_problem.py`, `test_ga_p.py`, `run_bekturova_exp.py`, prediction and README | Ran five tests and all 15 tuning experiments |
+| Course materials | Generator, official checker and environment check | `checkpoint4_generator_PUBLIC.py`, `check_env.py` | Confirmed instance check values |
+| Miras Asem, GA-A partner | Shared GA loop | `src/meta/ga.py` | Ran the integrated penalty experiment with checker and budget validation |
+
+Each partner records their own declarations.
+Reports are submitted individually; the final repository tag is `checkpoint4`.
 
 
