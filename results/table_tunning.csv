@@ -1,0 +1,3 @@
+Configuration	Seeds	Parameters	Average Cost
+Rule-Based	100-104	Default calibration	7.3488
+Tuned	100-104	T0 = 10.0, Tend = 0.05	7.4236
