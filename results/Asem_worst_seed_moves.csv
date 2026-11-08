@@ -1,0 +1,2 @@
+seed,cost,improving_transfers,improving_swaps,best_transfer_delta,best_swap_delta,descent_steps,descent_cost
+4,7.401361,5,36,-0.011366,-0.029136,4,7.346367
