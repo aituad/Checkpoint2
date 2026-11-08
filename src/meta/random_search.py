@@ -14,7 +14,7 @@ def solve(d, variant, seed, budget, params=None, start=None):
         res = evaluate(d, ind, rho=10.0) 
         evals += 1
         
-        if res['feasible'] and res['cost'] < best_cost:
+        if res['feasible'] and (not is_feas or res['cost'] < best_cost):
             best_cost = res['cost']
             best_sol = ind.copy()
             is_feas = True
