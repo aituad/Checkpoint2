@@ -1052,7 +1052,7 @@ Reports are submitted individually; the final repository tag is `checkpoint4`.
 
 | Tool/Source | Used For | Files/Sections | Personally Checked |
 |---|---|---|---|
-| AI | Generating the random baseline script, tuning experiments, test file, README documentation, and report drafting | `create_baseline.py`, `tuning_rule.py`, `tuning_params.py`, `tests/test_sa_t.py`, README | Executed baseline and tuning experiments, verified average costs, and checked generated CSV files |
+| AI | Generating the random baseline script, tuning experiments, test file, README documentation | `create_baseline.py`, `tuning_rule.py`, `tuning_params.py`, `tests/test_sa_t.py`, README | Executed baseline and tuning experiments, verified average costs, and checked generated CSV files |
 | Course materials | Generator, official checker, starter kit, and environment validation | `checkpoint4_generator_PUBLIC.py`, `check_env.py`, `experiments/run_final.py` | Confirmed instance generation, feasibility checks, and output format requirements |
 | Adil Mutali (SA-I partner) | Simulated Annealing implementation | `src/meta/sa.py` | Verified execution, checker agreement, budget consumption, and tuning results |
 
