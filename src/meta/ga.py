@@ -1,6 +1,16 @@
 import numpy as np
 from .ga_problem import random_individual, evaluate, crossover, mutate
 
+def tournament_select(fitnesses, k, rng):
+    """Return the index of the best (lowest fitness) among k distinct, randomly chosen entrants."""
+    idxs = rng.choice(len(fitnesses), k, replace=False)
+    best_idx = idxs[0]
+    for idx in idxs[1:]:
+        if fitnesses[idx] < fitnesses[best_idx]:
+            best_idx = idx
+    return best_idx
+
+
 def solve(d, variant, seed, budget, params=None, start=None):
     # Using the NumPy generator, as required by the GA-P interface.
     rng = np.random.default_rng(seed)
@@ -45,17 +55,14 @@ def solve(d, variant, seed, budget, params=None, start=None):
     def get_diversity(pop):
         return len(set(tuple(x.tolist()) for x in pop))
         
+    best_fitness_history = []   # lowest fitness in the population after each generation (used by the elitism test)
     if evals > 0:
         diversity_history.append(get_diversity(population))
+        best_fitness_history.append(min(fitnesses))
     
-    # Tournament selection (choosing the best among k_tourn randomly selected participants)
+    # Tournament selection: see tournament_select (module level, so it can be unit-tested)
     def tournament():
-        idxs = rng.choice(len(population), k_tourn, replace=False)
-        best_idx = idxs[0]
-        for idx in idxs[1:]:
-            if fitnesses[idx] < fitnesses[best_idx]:
-                best_idx = idx
-        return best_idx
+        return tournament_select(fitnesses, k_tourn, rng)
 
     # 2. Main Loop
     while evals < budget:
@@ -101,6 +108,7 @@ def solve(d, variant, seed, budget, params=None, start=None):
         population, fitnesses = next_pop, next_fit
         costs, feasibilities = next_cost, next_feas
         diversity_history.append(get_diversity(population))
+        best_fitness_history.append(min(fitnesses))
 
     # Formulating Answer
     if best_feasible_sol is None:
@@ -120,6 +128,7 @@ def solve(d, variant, seed, budget, params=None, start=None):
         "feasible": final_feas,
         "trace": trace,
         "diversity": diversity_history,
+        "best_fitness_history": best_fitness_history,
         "offspring_evaluated": offspring_evaluated,
         "offspring_feasible": offspring_feasible
     }
