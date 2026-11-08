@@ -265,5 +265,19 @@
   "9": 4000
  },
  "n_transfer_candidates": 293,
- "baseline": null
+ "baseline": {
+  "best": 7.994870145915072,
+  "median": 8.241387957909957,
+  "mean": 8.222465014575551,
+  "worst": 8.432074792614557,
+  "std": 0.1357192510227009,
+  "n": 10,
+  "gap_ref_mean": 11.945161335488672,
+  "gap_ref_best": 8.846559608857678,
+  "gap_ref_worst": 14.798904146005667,
+  "gap_LP_mean": 10.872202107164547,
+  "gap_LP_best": 8.334946456329225,
+  "gap_LP_worst": 13.087796535926705,
+  "file": "results/random_baseline.csv"
+ }
 }
