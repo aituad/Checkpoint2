@@ -1048,11 +1048,11 @@ python experiments/plot_graphs_ga.py
 Each partner records their own declarations.
 Reports are submitted individually; the final repository tag is `checkpoint4`.
 
-### Alina Suleimenova 
-Tool / Source Used	Purpose	Files / Sections	Personally Checked
-ChatGPT	Assistance with baseline generation, parameter tuning, test creation, README preparation, and report drafting	create_baseline.py, tuning_rule.py, tuning_params.py, test_sa_t.py, README, report text	Executed all experiments, verified outputs, checked averages manually
-Course Materials	Instance generator, official checker, and project instructions	checkpoint4_generator_PUBLIC.py, check_env.py, CP4 Guide	Confirmed generated instances and verified solution feasibility
-Adil Mutali (SA-I partner)	Simulated Annealing implementation	src/meta/sa.py	Used the provided implementation and validated tuning results with multiple runs
-Own Experimental Work	Random baseline generation and parameter evaluation	results/random_baseline.csv, tuning experiments (seeds 100–104)	Executed baseline runs, measured performance, compared rule-based and tuned configurations
+### Declaration - Alina Suleimenoa 
 
-
+| Tool/Source | Used For | Files/Sections | Personally Checked |
+|---|---|---|---|
+| ChatGPT | Generating the random baseline script, tuning experiments, test file, README documentation, and report drafting | `create_baseline.py`, `tuning_rule.py`, `tuning_params.py`, `tests/test_sa_t.py`, README, report text | Executed all baseline and tuning experiments, verified average costs, and checked generated CSV files |
+| Course materials | Generator, official checker, starter kit, and environment validation | `checkpoint4_generator_PUBLIC.py`, `check_env.py`, `experiments/run_final.py` | Confirmed instance generation, feasibility checks, and output format requirements |
+| Adil Mutali (SA-I partner) | Simulated Annealing implementation | `src/meta/sa.py` | Verified execution, checker agreement, budget consumption, and tuning results |
+| Own experimental work | Random Search baseline generation and parameter tuning analysis | `results/random_baseline.csv`, tuning runs on seeds 100--104 | Ran all experiments, compared Rule-Based and Tuned configurations, and calculated final averages |
