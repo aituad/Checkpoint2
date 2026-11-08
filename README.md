@@ -1028,6 +1028,30 @@ python experiments/analyze_worst_seed.py
 python experiments/plot_graphs_ga.py
 ```
 
+#### 6. Population-size experiment (N = 10 and N = 100, seeds 0–9, budget 100,000)
+
+```bash
+python experiments/run_popsize.py
+```
+
+Writes `results/Asem_exp.csv`. N = 30 is not rerun: it is the `GA, penalty` block of `results/Asem_runs.csv`.
+
+#### 7. Worst-seed move counts, numbers for the report and Figure F2
+
+```bash
+python experiments/report_extras.py
+```
+
+Reads `results/Asem_runs.csv`, `results/Asem_exp.csv` and `results/T16_GA_traces_assignments.json`. Writes `results/Asem_worst_seed_moves.csv`, `results/Asem_report_numbers.json` and `results/Asem_F2_diversity_N.png`.
+
+#### 8. GA-A role test
+
+```bash
+python -m unittest tests.test_ga_a -v
+```
+
+Checks: same seed gives the same run, exactly the budget is spent (budgets that are not multiples of the generation size included), elitism keeps the best individual, the best-so-far trace never increases, the tournament never returns the worst entrant, and the reported cost agrees with the checker.
+
 ---
 
 ### Declarations — Dilnaz Bekturova
@@ -1040,11 +1064,7 @@ python experiments/plot_graphs_ga.py
 
 ### Declarations — Miras Asem
 
-| Tool/Source | Used For | Files/Sections | Personally Checked |
-|---|---|---|---|
-| Gemini | Drafting the main GA loop, Random Search baseline, plotting, and analysis scripts | `src/meta/ga.py`, `src/meta/random_search.py`, `experiments/` scripts | Verified exact budget consumption (100k evaluations), official checker agreement, and CSV output |
-| Course materials | Starter kit, interface definition, and checker validation | `checkpoint4_generator_PUBLIC.py`, `run_final.py` | Validated all 10 final runs against official checker criteria |
-| Dilnaz Bekturova, GA-P partner | Problem operators and tuning experiments | `src/meta/ga_problem.py`, `results/bekturova_exp.csv` | Tested integration of crossover/mutation and evaluated penalty selection |
+| Claude (Anthropic) | Writing `tests/test_ga_a.py`, `experiments/run_popsize.py` and `experiments/report_extras.py`; small refactoring of `src/meta/ga.py` (tournament moved into the module-level function `tournament_select`, added the output field `best_fitness_history`, no change to the random-number sequence); drafting the report text | `tests/test_ga_a.py`, `experiments/run_popsize.py`, `experiments/report_extras.py`, `src/meta/ga.py`, `Asem_CP4.pdf` | Ran the 6 tests (all pass); checked that seed 1 still gives 7.347652210 after the refactoring; checked Table 1 and Table 2 numbers against `results/Asem_runs.csv` and the official checker; read and understood the report text |
 
 Each partner records their own declarations.
 Reports are submitted individually; the final repository tag is `checkpoint4`.
