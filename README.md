@@ -1048,7 +1048,7 @@ python experiments/plot_graphs_ga.py
 Each partner records their own declarations.
 Reports are submitted individually; the final repository tag is `checkpoint4`.
 
-### Declaration - Alina Suleimenoa 
+### Declaration - Alina Suleimenova 
 
 | Tool/Source | Used For | Files/Sections | Personally Checked |
 |---|---|---|---|
