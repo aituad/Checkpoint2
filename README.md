@@ -915,8 +915,7 @@ Average cost:
 
 7.4236
 
-Conclusion
 Rule-based configuration performed better than the tuned configuration.
 
 
-This configuration was selected for the final runs.
+
