@@ -811,4 +811,110 @@ Seconds in the CSV depend on the machine (the file was produced on a Linux VM); 
 |---|---|---|---|
 | Claude (AI assistant, Anthropic) | drafting the code of SA (state, incremental cost, schedule, rule-based T0/Tend), the improving-move check, the role test, the report script, this README section and the first draft of the report text | `src/meta/sa.py`, `src/meta/sa_checks.py`, `tests/test_sa_i.py`, `experiments/sa_i_report.py`, this section, report (prediction, Sections 3–6) | I read `sa.py` line by line and can explain every step; I ran `pytest tests/test_sa_i.py` on my machine (34 passed) and `experiments/sa_i_report.py`, which re-runs the 10 final seeds: the costs equal `results/Mutali_runs.csv` and the numbers of Table 1 and Table 2 (seed 6) are reproduced |
 | numpy, matplotlib, Python standard library | arrays, percentile/median, figures, random numbers | all | versions as installed in my `.venv` |
-| Starter kit and `checkpoint4_generator_PUBLIC.py` | interface, runner, checker | `src/meta/interface.py`, `experiments/run_final.py`, `check_env.py` | unchanged copies |
+| Starter kit and `checkpoint4_generator_PUBLIC.py` | interface, runner, checker | `src/meta/interface.py`, `experiments/run_final.py`, `check_env.py` | unchanged copies |  
+
+
+
+
+##Alina Suleimenova, configuration: SA, transfer. Role: SA-T, team T16
+
+##create_baseline.py
+This script generates the random-search baseline required for Checkpoint 4.
+
+Functionality
+Creates the instance for Team T16 (Story B, Variant 3).
+Runs random_search.solve() for seeds 0-9.
+Uses a budget of 100000 evaluations for each run.
+Measures execution time for every run.
+Saves the results to:
+results/random_baseline.csv
+
+Output columns
+team, role, configuration, seed, budget,
+cost, evals, feasible, seconds, params
+
+##tuning_rule.py
+
+This script evaluates the default rule-based temperature selection implemented in sa.py.
+
+Functionality
+Creates the Team T16 instance.
+Runs Simulated Annealing with:
+params = None
+
+Uses seeds:
+100, 101, 102, 103, 104
+
+Prints the objective value for each run.
+Computes and prints the average objective value.
+Purpose
+
+Used to compare the default rule-based temperature schedule with manually tuned parameters.
+
+tuning_params.py
+
+This script evaluates manually tuned Simulated Annealing parameters.
+
+Parameters
+params = {
+    "T0": 10.0,
+    "Tend": 0.05
+}
+
+Functionality
+Creates the Team T16 instance.
+Runs Simulated Annealing for seeds:
+100, 101, 102, 103, 104
+
+Prints the objective value for each run.
+Computes and prints the average objective value.
+Purpose
+
+Used for parameter tuning and comparison against the rule-based configuration.
+
+random_baseline.csv
+
+This file contains the random-search baseline results used in the CP4 analysis.
+
+Configuration
+configuration = random
+
+Settings
+Seeds: 0-9
+Budget: 100000 evaluations
+Story: B
+Variant: 3
+Team: T16
+Role: SA-T
+
+Purpose
+
+Provides a baseline for comparison with the Simulated Annealing implementation.
+
+Tuning Result
+
+The following configurations were compared on seeds 100-104:
+
+Rule-based
+
+Average cost:
+
+7.3488
+
+Tuned
+
+Parameters:
+
+T0 = 10.0
+Tend = 0.05
+
+
+Average cost:
+
+7.4236
+
+Conclusion
+Rule-based configuration performed better than the tuned configuration.
+
+
+This configuration was selected for the final runs.
