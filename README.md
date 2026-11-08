@@ -802,10 +802,10 @@ python3 experiments/run_final.py --module src.meta.sa --instance-seed 16 --story
 python3 experiments/run_final.py --module src.meta.sa --instance-seed 16 --story B --variant 3 \
     --team T16 --role SA-I --configuration "SA, transfer" --params '{"T0": 10.0, "Tend": 0.05}' --seeds 0-9 --append --out results/Mutali_runs.csv   # the tuned set of SA-T on seeds 0-9 (rule-based was better on seeds 100-104, so Table 1 uses the rule-based rows)
 python3 experiments/sa_i_report.py                                     # Table 1, Table 2, F1, F2 (re-runs the seeds and checks them against the CSV)
-python3 experiments/sa_i_report.py --baseline results/random_baseline.csv   # same, with the random-search baseline (file random_baseline.csv, owner Suleimenova / SA-T) for Table 1 and question 6
+python3 experiments/sa_i_report.py --baseline results/Suleimenova_random_baseline.csv   # same, with the random-search baseline (file Suleimenova_random_baseline.csv, owner Suleimenova / SA-T) for Table 1 and question 6
 ```
 
-After the final runs only diagnostic entries of `stats` were added to `solve` (time of the best state, final state); the 10 costs were re-checked equal by `sa_i_report.py`. Seconds in the CSV depend on the machine (the file was produced on a Linux VM); costs do not. The Table 1 / Table 2 / F1 / F2 files are written by `sa_i_report.py` from `results/Mutali_runs.csv`; the baseline numbers come from SA-T's file.
+After the final runs only diagnostic entries of `stats` were added to `solve` (time of the best state, final state); the 10 costs were re-checked equal by `sa_i_report.py`. Seconds in the CSV depend on the machine (the file was produced on a Linux VM); costs do not. The Table 1 / Table 2 / F1 / F2 files are written by `sa_i_report.py` from `results/Mutali_runs.csv`; the baseline numbers come from SA-T's file `results/Suleimenova_random_baseline.csv`. The tuning-seed numbers quoted in the report (seeds 100–104: rule-based 7.3488, tuned 7.4236) come from SA-T's file `results/Suleimenova_table_tunning.csv`; `src/meta/tunning_rule.py` and `src/meta/tunning_params` of SA-T reproduce them.
 
 ### Declaration — Adil Mutali
 
@@ -876,7 +876,7 @@ Purpose
 
 Used for parameter tuning and comparison against the rule-based configuration.
 
-## random_baseline.csv
+### Suleimenova_random_baseline.csv
 
 This file contains the random-search baseline results used in the CP4 analysis.
 
@@ -895,6 +895,7 @@ Role: SA-T
 
 Provides a baseline for comparison with the Simulated Annealing implementation.
 
+### Suleimenova_table_tunning.csv
 ### Tuning Result
 
 The following configurations were compared on seeds 100-104:
@@ -1048,7 +1049,7 @@ python experiments/plot_graphs_ga.py
 Each partner records their own declarations.
 Reports are submitted individually; the final repository tag is `checkpoint4`.
 
-### Declaration - Alina Suleimenoa 
+### Declarations - Alina Suleimenova 
 
 | Tool/Source | Used For | Files/Sections | Personally Checked |
 |---|---|---|---|
